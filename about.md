@@ -11,4 +11,4 @@ For more information see my linkedin and github page.
 
 ### Contact me
 
-[email@domain.com](mailto:bas.aan.de.wiel@gmail.com)
+[bas.aan.de.wiel@gmail.com](mailto:bas.aan.de.wiel@gmail.com)

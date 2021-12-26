@@ -4,12 +4,11 @@ title: About
 permalink: /about/
 ---
 
-Some information about you!
-
+I have 12 year experience as embedded software engineer. Currently I am working as IT-consultant for a consultancy firm, but embedded programming is still a big passion for me.
 ### More Information
 
-A place to include any other types of information that you'd like to include about yourself.
+For more information see my linkedin and github page.
 
 ### Contact me
 
-[email@domain.com](mailto:email@domain.com)
+[email@domain.com](mailto:bas.aan.de.wiel@gmail.com)

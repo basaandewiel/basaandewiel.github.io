@@ -49,7 +49,7 @@ ln -s /mnt/share/domoticz.db domoticz.db #create soft link to db on rpi3
 
 ```
 
-Now you need to create a config file for domoticz. Put this file in `/etc/config/domoticz`.
+Now you need to create a config file for domoticz. Put this file in `/etc/config/domoticz`
 
 ```bash
 config domoticz
@@ -81,7 +81,7 @@ config domoticz
 
 ```
 
-Noy need to create one other file, file for starting domoticz as a service. Put this file in `/etc/init.d/domoticz`.
+Noy need to create one other file, file for starting domoticz as a service. Put this file in `/etc/init.d/domoticz`
 
 ```bash
 ì#!/bin/sh /etc/rc.common
@@ -185,3 +185,14 @@ Now you can start Domoticz:
 #start domoticz
 /etc/init.d/domoticz start
 ```
+
+Check whether domoticz starts by going to <ip-of-router:8080>. Domoticz should load, and when you have correctly linked the domoticz.db file to a existing database file, you should see all the devices in your domoticz.
+
+If you use domoticz scripts (lua for instance) then you have to copy your scripts to `/etc/domoticz/scripts/` .
+
+
+NB: with this configuration domoticz is installed in RAM disk; my experience is that is does survice reboots of the router. You have probably to reinstall domoticz after power failure, of after power cycling the router (NOT yet tested).
+
+## Known issues/things not working
+- mailing from domoticz (probably you have to install mail client on OpenWRT)
+- sending Telegram messages (to be investigated)

@@ -3,13 +3,13 @@
 #
 
 # Name of your site (displayed in the header)
-name: Christian aan de Wiel
+name: Bas aan de Wiel
 
 # Short bio or description (displayed in the header)
-description: C++ Developer
+description: IT-consultant, IT-sourcing expert, embedded software developer
 
 # URL of your avatar or profile pic (you could use your GitHub profile pic)
-avatar: https://avatars.githubusercontent.com/u/60848632?v=4
+avatar: 
 
 #
 # Flags below are optional
@@ -21,9 +21,9 @@ footer-links:
   email:
   facebook:
   flickr:
-  github: caandewiel
+  github: basaandewiel
   instagram:
-  linkedin: christian-aan-de-wiel-322687a5
+  linkedin: bas-aan-de-wiel
   pinterest:
   rss: # just type anything here for a working RSS icon
   twitter:
@@ -37,11 +37,11 @@ footer-links:
 disqus:
 
 # Enter your Google Analytics web tracking code (e.g. UA-2110908-2) to activate tracking
-google_analytics: UA-66210521-2
+google_analytics: 
 
 # Your website URL (e.g. http://barryclark.github.io or http://www.barryclark.co)
 # Used for Sitemap.xml and your RSS feed
-url: https://caandewiel.github.io
+url: https://basaandewiel.github.io
 
 # If you're hosting your site at a Project repository on GitHub pages
 # (http://yourusername.github.io/repository-name)

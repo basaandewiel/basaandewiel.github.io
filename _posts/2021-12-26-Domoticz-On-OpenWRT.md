@@ -9,19 +9,21 @@ I also had a Linksys 3200 ACM router, running OpenWRT, with enought empty space.
 The code below installs everything on OpenWRT that is neede to run domoticz. 
 
 NB: I store the domoticz database on my RPI to prevent space problems on my router.
+This is also why I turned off all logging of Domoticz (in /etc/config/domoticz - see below)
 
+The easiest way to install domoticz is by executing commands via ssh. For this you need to ssh into your openWRT router (google to find out how to do that).
 
 ```bash
 #This script can be used to install domoticz on openWRT
 #tested on 211203 with OpenWRT 20.01
-#can also be used to copy needed scripts/files vanished after reboot
-#NB: domoticz.db is stored via softlink to mounten RPI3/motion share on RPI3
-#Folowing must be CHANGED
+#NB: domoticz.db is stored via softlink to mounted share on RPI/SMBshare 
+#Folowing must be CHANGED in this script:
 # * IP-number of the device where the database is stored
 # * username and password for mounting the share
 IPADDRESS = 192.168.1.13
 USER=username
 PASSWORD=password
+SMBshare=<name of SMB share on RPI>
 
 #install required packages
 opkg update
@@ -41,16 +43,144 @@ opkg install curl #needed for sending telegram message ico burglar
 opkg install kmod-fs-cifs kmod-nls-base
 mkdir /mnt/share
 #
-mount -t cifs //$IPADRESS/motion /mnt/share/ -o username=$USER,password=$PASSWORD
+mount -t cifs //$IPADRESS/SMBshare /mnt/share/ -o username=$USER,password=$PASSWORD
 cd /var/lib/domoticz
 ln -s /mnt/share/domoticz.db domoticz.db #create soft link to db on rpi3
 
-#restore /etc if necessary
-cd /etc/config/
-#create file /etc/config/domoticz @@@
-#create file /etc/init.d/domoticz @@@
+```
 
-#restore /var/lib/domoticz if necessary -seems to survive reboots, but probably not when device is turned off and on
+Now you need to create a config file for domoticz. Put this file in `/etc/config/domoticz`.
+
+```bash
+config domoticz
+    option disabled '0'
+    option loglevel '0'
+    option syslog 'daemon'
+    # option sslcert '/path/to/ssl.crt'
+    # option sslkey '/path/to/ssl.key'
+    # option sslpass 'passphrase'
+    # option ssldhparam '/path/to/dhparam.pem'
+    option sslwww '0'
+    # CAUTION - by default, /var is not persistent accross reboots
+    # Don't forget the trailing / - domoticz requires it
+    option userdata '/var/lib/domoticz/'
+#    option userdata '/home/domoticz/'
+#config device
+#       option product '658/200/0'
+#       option symlink 'ttyACM-aeotec-zstick-g5'
+#config device
+#       option serial '526359'
+#       option symlink 'ttyUSB-serial'
+#config device
+#       option usbif '2-1:1.0'
+#       option symlink 'ttyUSB-port1'
+#config device
+#       option product '67b/2303/202'
+#       option usbif '2-2:1.0'
+#       option symlink 'ttyUSB-port2'
+
+```
+
+Noy need to create one other file, file for starting domoticz as a service. Put this file in `/etc/init.d/domoticz`.
+
+```bash
+ì#!/bin/sh /etc/rc.common
+START=99
+USE_PROCD=1
+#baswi inserted next line
+PROCD_DEBUG=1
+PROG=/usr/bin/domoticz
+PIDFILE=/var/run/domoticz.pid
+start_domoticz() {
+    local section="$1"
+    local loglevel www log sslcert sslpass sslwww syslog userdata
+    config_get loglevel "$section" "loglevel"
+    config_get sslcert "$section" "sslcert"
+    config_get sslkey "$section" "sslkey"
+    config_get sslpass "$section" "sslpass"
+    config_get ssldhparam "$section" "ssldhparam"
+    config_get sslwww "$section" "sslwww"
+    config_get www "$section" "www"
+    config_get log "$section" "log"
+    config_get syslog "$section" "syslog"
+    config_get userdata "$section" "userdata"
+    [ -n "$loglevel" ] && procd_append_param command -debuglevel "$loglevel"
+    [ -n "$syslog" ] && procd_append_param command -syslog "$syslog"
+    [ -n "log" ] && procd_append_param command -log "$log"
+    [ -d "${userdata}" ] || {
+        mkdir -p "${userdata}"
+        findLatestDatabase "$userdata"
+        chmod 0770 "$userdata"
+        chown root:root "$userdata"
+    }
+    # By default, ${userdata}/scripts is a symlink to /etc/domoticz/scripts
+    # and the two dzVents directories under there which Domoticz will actually
+    # write to at runtime are symlinked back to /var/lib again.
+    [ -d "${userdata}/plugins" ] || ln -sf /etc/domoticz/plugins "${userdata}/plugins"
+    [ -d "${userdata}/scripts" ] || ln -sf /etc/domoticz/scripts "${userdata}/scripts"
+    for DIR in data generated_scripts; do
+        [ -d /data/domoticz/dzVents/$DIR ] || {
+            mkdir -p /data/domoticz/dzVents/$DIR
+            chown root.root /data/domoticz/dzVents/$DIR
+        }
+    done
+    procd_append_param command -userdata "$userdata"
+    procd_append_param command -www "$www"
+    [ -n "$sslcert" -a "${sslwww:-0}" -gt 0 ] && {
+        procd_append_param command -sslcert "$sslcert"
+            [ -n "$sslkey" ] && procd_append_param command -sslkey "$sslkey"
+        [ -n "$sslpass" ] && procd_append_param command -sslpass "$sslpass"
+        [ -n "$ssldhparam" ] && procd_append_param command -ssldhparam "$ssldhparam"
+    } || procd_append_param command -sslwww "$sslwww"
+}
+start_service() {
+    procd_open_instance
+    procd_set_param command "$PROG"
+#baswi - added next line; https://openwrt.org/docs/guide-developer/procd-init-scripts
+#should be necessary for service trigger
+    procd_set_param netdev
+    procd_append_param command -noupdates
+    procd_append_param command -approot /usr/share/domoticz/
+#       procd_append_param command -wwwbind 192.168.1.1
+    config_load "domoticz"
+    config_get_bool disabled "$section" "disabled" 0
+    [ "$disabled" -gt 0 ] && return 1
+    config_foreach start_domoticz domoticz
+    procd_set_param pidfile "$PIDFILE"
+    procd_set_param respawn
+    procd_set_param stdout 0
+    procd_set_param term_timeout 10
+    procd_set_param user "root"
+    procd_close_instance
+}
+findLatestDatabase() {
+    destinationFolder=$1
+    yourfilenames=`ls /root/domoticz*[0-9].db`
+    LatestDate=0
+    for eachfile in $yourfilenames
+    do
+        echo $eachfile
+        if [[ "${eachfile//[!0-9]/}" > "$LatestDate" ]]; then
+            LatestDate=${eachfile//[!0-9]/}
+        fi
+    done
+    if [ "$LatestDate" -gt "0" ]; then
+        cp "/root/domoticz${LatestDate}.db" "${destinationFolder}domoticz.db"
+    fi
+}
+
+#211222 added by baswi
+service_triggers() {
+#reload after 60 seoncds; default was restarting every 15 seconds for max 6 times
+#  PROCD_RELOAD_DELAY=60000
+# retart domoticz if RPI3 (on wich domoticz.db resides) is back
+   procd_add_interface_trigger "interface.*.up" "lan1" /etc/init.d/domoticz restart
+}
+
+```
+
+Now you can start Domoticz:
+```bash
 
 #start domoticz
 /etc/init.d/domoticz start

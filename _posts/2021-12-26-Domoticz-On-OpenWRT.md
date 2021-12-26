@@ -2,7 +2,6 @@
 layout: post
 title: Install Domoticz on router running OpenWRT
 ---
-# Domoticz on OpenWRT
 ## Used configuration
 - hardware: Linksys WRT3200ACM
 - firmware version: OpenWrt 21.02.1 r16325-88151b8303 / LuCI openwrt-21.02 branch git-21.357.58218-b3cd473
@@ -200,4 +199,3 @@ NB: with this configuration domoticz is installed in RAM disk; my experience is 
 
 ## Known issues/things not working
 - mailing from domoticz (probably you have to install mail client on OpenWRT)
-- sending Telegram messages (to be investigated)

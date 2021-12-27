@@ -197,5 +197,12 @@ If you use domoticz scripts (lua for instance) then you have to copy your script
 
 NB: with this configuration domoticz is installed in RAM disk; my experience is that is does survice reboots of the router. You have probably to reinstall domoticz after power failure, of after power cycling the router (NOT yet tested).
 
+## Using Lua scripts
+If you want to use script (lua or dzVents) and you want to use persistant data then you have to create following directory: 
+`mkdir /var/lib/domoticz/dzVents; mkdir /var/lib/domoticz/dzVents/data`
+This directory is used to store persistant data; 
+NB: this persistant data is in RAM disk, but is it persistant across subsequent call to the dzVents script.
+
+
 ## Known issues/things not working
 - mailing from domoticz (probably you have to install mail client on OpenWRT)

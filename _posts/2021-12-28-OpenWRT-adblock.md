@@ -2,6 +2,13 @@
 layout: post
 title: OpenWRT - configure
 ---
+## Install adblock
+You have to install adblock itself and a luci-helper to be able to configure adblock via the GUI:
+```bash
+opkg install adblock
+opkg install luci-app-adblock
+```
+
 ## Configure adblock
 Adblock is easily installed via the GUI.
 To confiugre whitelisting follwwing gmust be done

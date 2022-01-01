@@ -88,5 +88,6 @@ popd
 ```
 
 Add the script to the cron, for instance:
+
 `52 8,18 * * *   /home/user/scripts/backup_kimai.bash`
 To backup the Kima database and other important files, two times a day.

@@ -49,7 +49,9 @@ mkdir /mnt/share
 #
 mount -t cifs //$IPADRESS/SMBshare /mnt/share/ -o username=$USER,password=$PASSWORD
 cd /var/lib/domoticz
-ln -s /mnt/share/domoticz.db domoticz.db #create soft link to db on rpi3
+ln -s /mnt/share/domoticz.db domoticz.db #create soft link to db on RPI
+ln -s /mnt/share/domoticz_backups backups #create soft link to backup directory used for hourly,daily,monthly backups by domoticz
+# of course /mnt/share/domoticz_backups mus be created first on RPI
 
 ```
 

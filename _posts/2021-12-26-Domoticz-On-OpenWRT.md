@@ -47,12 +47,13 @@ opkg install curl #needed for sending telegram message ico burglar
 opkg install kmod-fs-cifs kmod-nls-base
 mkdir /mnt/share
 #
-mount -t cifs //$IPADRESS/SMBshare /mnt/share/ -o username=$USER,password=$PASSWORD
+mount -t cifs //$IPADRESS/SMBshare /mnt/share/ -o nolock -o username=$USER,password=$PASSWORD
 cd /var/lib/domoticz
 ln -s /mnt/share/domoticz.db domoticz.db #create soft link to db on RPI
 ln -s /mnt/share/domoticz_backups backups #create soft link to backup directory used for hourly,daily,monthly backups by domoticz
 # of course /mnt/share/domoticz_backups mus be created first on RPI
 
+#NB: the option 'nolock' in the mount command is necessary, otherwise domoticz will crash every hour (see also below)
 ```
 
 Now you need to create a config file for domoticz. Put this file in `/etc/config/domoticz`
@@ -204,5 +205,10 @@ This directory is used to store persistant data;
 NB: this persistant data is in RAM disk, but is it persistant across subsequent call to the dzVents script.
 
 
+## Domoticz crashes when autobackupping to a network drive #4180
+see https://github.com/domoticz/domoticz/issues/4180
+When the domoticz.db is on a CIFS mounted drive, as here is the case, the drive must be mounted with the "-o nolock" option. Otherwise Domoticz cannot lock the database when it wants to make a backup of the database, and then Domoticz crashes after 5 minutes of retrying.
+
 ## Known issues/things not working
 - mailing from domoticz (probably you have to install mail client on OpenWRT)
+After a few days I saw that domoticz crashes every hour at xx.05. The was caused by turning on the auto backup feature in Domoticz, and letting it make a backup to a network drive (mounted as CIFS, see above).

@@ -13,17 +13,26 @@ git clone https://git.yoctoproject.org/git/poky
 cd poky
 git clone https://github.com/aehs29/meta-freertos.git
 source oe-init-build-env
+bitbake-layers add-layer ../meta-freertos
 ```
-
-edit local/conf.local and add/change
+Now you are in directory `~/poky/build/
+Change conf/conf.local
 ```bash
-MACHINE ?= "qemux86-64"
-ONNECTIVITY_CHECK_URIS = "https://www.google.com/"
+echo "MACHINE = \"qemuarmv5\"" >> ./conf/local.conf
+echo "DISTRO = \"freertos\"" >> ./conf/local.conf
+echo "CONNECTIVITY_CHECK_URIS = \"https://www.google.com\/" >> ./conf/local.conf
+``` 
+Comment line with "PACKAGECONFIG:append:pn-qemu-system-native = " sdl" " in ./conf/local.conf 
 
-```
 
+Now build your linux system;
+built images will be put in build/tmp/deploy/images/qemuarmv5
 ```bash
 bitbake freertos-demo #takes about 45 minutes on old laptop
+``` 
+
+Configure networking, so that from within Qemu can be communicated
+```bash
 #
 # add networking, virtual interface etc
 # thanks to https://bbs.archlinux.org/viewtopic.php?id=207907

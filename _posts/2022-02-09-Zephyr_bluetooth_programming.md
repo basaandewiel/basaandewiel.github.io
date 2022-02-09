@@ -1,93 +1,114 @@
 # Zephyr
 Zephyr is the future and is extremely power efficient. 
     supported by industry
-*        Nordic
-*        Intel
-*        NXP
-*        MBed is only for ARM, Zephyr also runs on other architectures.
-    you can run your Zephyr applications on your x86 machine which might allow you todo a bit of testing on your development machine itself without loading it into the hardware.
+* Nordic
+* Intel
+* NXP
+* MBed is only for ARM, Zephyr also runs on other architectures.
+
+You can run your Zephyr applications on your x86 machine which might allow you todo a bit of testing on your development machine itself without loading it into the hardware.
 This enable for instance developing code for an Arduino_nano_33_ble, and test in on you linux X86 machine (via Qemu). You can even simulate the bluetooth code using BLuez on your Linux machine.
 
 
 ##    installation
-        14  sudo apt update
-            15  sudo apt upgrade
-            16  wget https://apt.kitware.com/kitware-archive.sh
-            17  sudo bash kitware-archive.sh
-            18  sudo apt install --no-install-recommends git cmake ninja-build gperf   ccache dfu-util device-tree-compiler wget   python3-dev python3-pip python3-setuptools python3-tk python3-wheel xz-utils file   make gcc gcc-multilib g++-multilib libsdl2-dev
-            19  cmake --version
-            20  python3 --version
-            21  dtc --version
-            22  pip3 install --user -U west
-            23  echo 'export PATH=~/.local/bin:"$PATH"' >> ~/.bashrc
-            24  source ~/.bashrc
-            west init ~/zephyrproject
-            26  cd zephyrproject/
-            27  west update
-            28  west zephyr-export
-            29  pip3 install --user -r ~/zephyrproject/zephyr/scripts/requirements.txt
-            30  cd
-            31  wget https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v0.13.2/zephyr-sdk-0.13.2-linux-x86_64-setup.run
-            32  chmod +x zephyr-sdk-0.13.2-linux-x86_64-setup.run
-            33  ./zephyr-sdk-0.13.2-linux-x86_64-setup.run -- -d ~/zephyr-sdk-0.13.2
-            34  ls /etc/udev/rules.d/
-            35  sudo cp ~/zephyr-sdk-0.13.2/sysroots/x86_64-pokysdk-linux/usr/share/openocd/contrib/60-openocd.rules /etc/udev/rules.d
-            36  sudo udevadm control --reload
-            37  cd ~/zephyrproject/zephyr
-        mkdir gnuarmemb
-            179  mv Downloads/gcc-arm-none-eabi-9-2019-q4-major-x86_64-linux.tar.bz2 ./
-            180  tar -xvf gcc-arm-none-eabi-9-2019-q4-major-x86_64-linux.tar.bz2
-            182  rmdir gnuarmemb/
-            183  mv gcc-arm-none-eabi-9-2019-q4-major gnuarmemb
-            184  export ZEPHYR_TOOLCHAIN_VARIANT=gnuarmemb
-    build and run Qemu x86
-        ZEPHYR_TOOLCHAIN_VARIANT=zephyr
-        west build --pristine -b qemu_x86 samples/hello_world/
-        west build -t run
-    build and run Qemu arm
-        ZEPHYR_TOOLCHAIN_VARIANT=gnuarmemb
-        ZEPHYR_TOOLCHAIN_VARIANT=zephyr
-        GNUARMEMB_TOOLCHAIN_PATH=/home/$USER/gnuarmemb/
-        west build --pristine -b qemu_cortex_m3 samples/hello_world/
-            if you get an error, delete `/zepyrproject/zephyr/build directory
-        west build -t run
-    build and run on Nano 33 BLE
-        GNUARMEMB_TOOLCHAIN_PATH=/home/$USER/gnuarmemb/
-        ZEPHYR_TOOLCHAIN_VARIANT=gnuarmemb
-        west build -p auto -b arduino_nano_33_ble samples/bluetooth/peripheral_hr
-        west flash --bossac=/home/baswi/.arduino15/packages/arduino/tools/bossac/1.9.1-arduino2/bossac
-        screen /dev/ttyACM0
-    ESP32
-        https://docs.zephyrproject.org/latest/boards/xtensa/esp32/doc/index.html
-        cd ~/zephyrproject
-        west espressif install
-        export ESPRESSIF_TOOLCHAIN_PATH="/home/baswi/.espressif/tools/zephyr"
-        export ZEPHYR_TOOLCHAIN_VARIANT="espressif"
-        export PATH=$PATH:$ESPRESSIF_TOOLCHAIN_PATH/bin
-        west espressif update
-        build and flash
-            west build --pristine -b esp32 samples/hello_world
-            west flash
-                NOT YET TESTED
-        build en qemu
-            export ESPRESSIF_TOOLCHAIN_PATH="${HOME}/.espressif/tools/zephyr"
-                DOES NOT WORK
-                "${HOME}/.espressif/tools/zephyr/xtensa-esp32-elf"
-            export ESPRESSIF_TOOLCHAIN_PATH="${HOME}/.espressif/tools/xtensa-esp32-elf/esp-2020r3-8.4.0/xtensa-esp32-elf"
-            west build --pristine -b qemu_xtensa samples/synchronization
-            west build -t run
-    Debugging
-        meestal via on board probes
-        gdbstubfeature provides an implementation of the GDB Remote Serial Protocol (RSP) that allows you to remotely debug Zephyr using GDB.
-        Qemu
-            Mostlyit is not used as emulatorbut as virtualizerin collaboration with KVM kernelcomponents. In that case it utilizes the virtualization technology of the hardware to virtualize guests.
+```
+sudo apt update
+sudo apt upgrade
+wget https://apt.kitware.com/kitware-archive.sh
+sudo bash kitware-archive.sh
+sudo apt install --no-install-recommends git cmake ninja-build gperf   ccache dfu-util device-tree-compiler wget   python3-dev python3-pip python3-setuptools python3-tk python3-wheel xz-utils file   make gcc gcc-multilib g++-multilib libsdl2-dev
+cmake --version
+python3 --version
+dtc --version
+pip3 install --user -U west
+echo 'export PATH=~/.local/bin:"$PATH"' >> ~/.bashrc
+source ~/.bashrc
+west init ~/zephyrproject
+cd zephyrproject/
+west update
+west zephyr-export
+pip3 install --user -r ~/zephyrproject/zephyr/scripts/requirements.txt
+cd
+wget https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v0.13.2/zephyr-sdk-0.13.2-linux-x86_64-setup.run
+chmod +x zephyr-sdk-0.13.2-linux-x86_64-setup.run
+./zephyr-sdk-0.13.2-linux-x86_64-setup.run -- -d ~/zephyr-sdk-0.13.2
+ls /etc/udev/rules.d/
+sudo cp ~/zephyr-sdk-0.13.2/sysroots/x86_64-pokysdk-linux/usr/share/openocd/contrib/60-openocd.rules /etc/udev/rules.d
+sudo udevadm control --reload
+cd ~/zephyrproject/zephyr
+mkdir gnuarmemb
+mv Downloads/gcc-arm-none-eabi-9-2019-q4-major-x86_64-linux.tar.bz2 ./
+tar -xvf gcc-arm-none-eabi-9-2019-q4-major-x86_64-linux.tar.bz2
+rmdir gnuarmemb/
+mv gcc-arm-none-eabi-9-2019-q4-major gnuarmemb
+export ZEPHYR_TOOLCHAIN_VARIANT=gnuarmemb
+```
+
+# build and run Qemu x86
+```
+ZEPHYR_TOOLCHAIN_VARIANT=zephyr
+west build --pristine -b qemu_x86 samples/hello_world/
+west build -t run
+`
+
+# build and run Qemu arm
+```
+ZEPHYR_TOOLCHAIN_VARIANT=gnuarmemb
+ZEPHYR_TOOLCHAIN_VARIANT=zephyr
+GNUARMEMB_TOOLCHAIN_PATH=/home/$USER/gnuarmemb/
+west build --pristine -b qemu_cortex_m3 samples/hello_world/
+#if you get an error, delete `/zepyrproject/zephyr/build directory
+west build -t run
+`
+
+#  build and run on Nano 33 BLE
+```
+GNUARMEMB_TOOLCHAIN_PATH=/home/$USER/gnuarmemb/
+ZEPHYR_TOOLCHAIN_VARIANT=gnuarmemb
+west build -p auto -b arduino_nano_33_ble samples/bluetooth/peripheral_hr
+west flash --bossac=/home/$USER/.arduino15/packages/arduino/tools/bossac/1.9.1-arduino2/bossac
+screen /dev/ttyACM0
+`
+
+# ESP32
+```https://docs.zephyrproject.org/latest/boards/xtensa/esp32/doc/index.html
+cd ~/zephyrproject
+west espressif install
+export ESPRESSIF_TOOLCHAIN_PATH="/home/$USER/.espressif/tools/zephyr"
+export ZEPHYR_TOOLCHAIN_VARIANT="espressif"
+export PATH=$PATH:$ESPRESSIF_TOOLCHAIN_PATH/bin
+west espressif update
+`
+#build and flash
+```
+west build --pristine -b esp32 samples/hello_world
+west flash
+#NOT YET TESTED
+`
+
+#build en qemu
+export ESPRESSIF_TOOLCHAIN_PATH="${HOME}/.espressif/tools/zephyr"
+#DOES NOT WORK
+"${HOME}/.espressif/tools/zephyr/xtensa-esp32-elf"
+export ESPRESSIF_TOOLCHAIN_PATH="${HOME}/.espressif/tools/xtensa-esp32-elf/esp-2020r3-8.4.0/xtensa-esp32-elf"
+west build --pristine -b qemu_xtensa samples/synchronization
+west build -t run
+`
+
+# Debugging
+In most cases on board probes are used.
+gdbstubfeature provides an implementation of the GDB Remote Serial Protocol (RSP) that allows you to remotely debug Zephyr using GDB.
+
+## Qemu
+Mostly it is not used as emulatorbut as virtualizerin collaboration with KVM kernelcomponents. In that case it utilizes the virtualization technology of the hardware to virtualize guests.
             consists of
                 CLI
                 Monitor
             debugging
                 you can attach any debugger  that use GDB remote protocol
                     GNU debugger
-                n order to use gdb, launch QEMU with the -s and -S  options. The -s option will make QEMU listen for an incoming connection from gdb on TCP port 1234, and -S will make QEMU not start the guest until you tell it to from gdb. (If you want to specify which TCP port to use or to use something other than TCP for the gdbstub connection, use the -gdb dev option instead of -s. See Using unix sockets for an example.)
+
+In order to use gdb, launch QEMU with the -s and -S  options. The -s option will make QEMU listen for an incoming connection from gdb on TCP port 1234, and -S will make QEMU not start the guest until you tell it to from gdb. (If you want to specify which TCP port to use or to use something other than TCP for the gdbstub connection, use the -gdb dev option instead of -s. See Using unix sockets for an example.)
                  <https://qemu-project.gitlab.io/qemu/system/gdb.html#using-unix-sockets>
                 In gdb, connect to QEMU:
                     (gdb) target remote localhost:1234
@@ -111,7 +132,6 @@ This enable for instance developing code for an Arduino_nano_33_ble, and test in
                                 sudo apt install automake
                                     to install alocal
                                 sudo apt install libtool
-                                 <mailto:baswi@baswiHP1040>
                                 elfutils support is required
                                     but elfutils is already installed
                                 sudo apt install elfutils
@@ -290,7 +310,6 @@ This enable for instance developing code for an Arduino_nano_33_ble, and test in
                 >>> dir(adapter)
                 ['ActiveInstances', 'Address', 'AddressType', 'Alias', 'Class', 'ConnectDevice', 'Discoverable', 'DiscoverableTimeout', 'Discovering', 'Get', 'Ge
                 >>> adapter.Name
-                baswiHP1040'
                 >>> adapter.Powered
                 True
                 >>> adapter.Address

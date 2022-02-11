@@ -45,6 +45,9 @@ export ZEPHYR_TOOLCHAIN_VARIANT=gnuarmemb
 ```
 
 # build and run Qemu x86
+One of the features I like of Zephyr is that you can test big parts of your embedded software via Qemu on you x86 machine. Togehter with gdb you can debug on your development machine, without first flashing the firmware to your development board.
+
+To compile and run your software for qemu add `-b qemu_x86`  to the build command line:
 ```
 ZEPHYR_TOOLCHAIN_VARIANT=zephyr
 west build --pristine -b qemu_x86 samples/hello_world/

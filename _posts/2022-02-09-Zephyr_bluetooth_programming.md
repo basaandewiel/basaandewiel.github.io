@@ -45,24 +45,25 @@ export ZEPHYR_TOOLCHAIN_VARIANT=gnuarmemb
 ```
 
 # build and run Qemu x86
-One of the features I like of Zephyr is that you can test big parts of your embedded software via Qemu on you x86 machine. Togehter with gdb you can debug on your development machine, without first flashing the firmware to your development board.
+One of the features I like of Zephyr is that you can test big parts of your embedded software via Qemu on you x86 machine. Togehter with gdb (see below) you can debug on your development machine, without first flashing the firmware to your development board.
 
 To compile and run your software for qemu add `-b qemu_x86`  to the build command line:
 ```
 ZEPHYR_TOOLCHAIN_VARIANT=zephyr
 west build --pristine -b qemu_x86 samples/hello_world/
 west build -t run
-`
+```
 
 # build and run Qemu arm
+You can also build the software for another qemu target, like ARM
 ```
-ZEPHYR_TOOLCHAIN_VARIANT=gnuarmemb
+ZEPHYR_TOOLCHAIN_VARIANT=gnuarmemb @@@
 ZEPHYR_TOOLCHAIN_VARIANT=zephyr
 GNUARMEMB_TOOLCHAIN_PATH=/home/$USER/gnuarmemb/
 west build --pristine -b qemu_cortex_m3 samples/hello_world/
 #if you get an error, delete `/zepyrproject/zephyr/build directory
 west build -t run
-`
+```
 
 #  build and run on Nano 33 BLE
 ```
@@ -71,32 +72,36 @@ ZEPHYR_TOOLCHAIN_VARIANT=gnuarmemb
 west build -p auto -b arduino_nano_33_ble samples/bluetooth/peripheral_hr
 west flash --bossac=/home/$USER/.arduino15/packages/arduino/tools/bossac/1.9.1-arduino2/bossac
 screen /dev/ttyACM0
-`
+```
 
 # ESP32
-```https://docs.zephyrproject.org/latest/boards/xtensa/esp32/doc/index.html
+For building software for ESP32 target, you need to install some things:
+```
+https://docs.zephyrproject.org/latest/boards/xtensa/esp32/doc/index.html
 cd ~/zephyrproject
 west espressif install
 export ESPRESSIF_TOOLCHAIN_PATH="/home/$USER/.espressif/tools/zephyr"
 export ZEPHYR_TOOLCHAIN_VARIANT="espressif"
 export PATH=$PATH:$ESPRESSIF_TOOLCHAIN_PATH/bin
 west espressif update
-`
-#build and flash
+```
+
+# build and flash
 ```
 west build --pristine -b esp32 samples/hello_world
 west flash
 #NOT YET TESTED
-`
+```
 
-#build en qemu
+# build for qemu
+```
 export ESPRESSIF_TOOLCHAIN_PATH="${HOME}/.espressif/tools/zephyr"
 #DOES NOT WORK
 "${HOME}/.espressif/tools/zephyr/xtensa-esp32-elf"
 export ESPRESSIF_TOOLCHAIN_PATH="${HOME}/.espressif/tools/xtensa-esp32-elf/esp-2020r3-8.4.0/xtensa-esp32-elf"
 west build --pristine -b qemu_xtensa samples/synchronization
 west build -t run
-`
+```
 
 # Debugging
 In most cases on board probes are used.

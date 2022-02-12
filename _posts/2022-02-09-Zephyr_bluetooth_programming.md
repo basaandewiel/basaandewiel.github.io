@@ -211,6 +211,8 @@ So using the Host System Bluetooth Controller, I use 4 terminal sessions:
 
 * terminal4
     * sudo btmon
+    * you can also write output of btmon to file and user Wireshark to analyse messages
+        * btmon --write protolog.snoop
  
 %%%When I mix the BT heart rate sample with the debug sample, either BT works OR gdb can connect; not both at the same time; **serial socket problem?? Could not find the solution for this after hours of searching** 
 

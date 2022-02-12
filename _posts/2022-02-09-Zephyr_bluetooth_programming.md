@@ -156,11 +156,12 @@ sudo apt-get install libelf-dev elfutils libdw-dev #this solved last elfutils su
 make
 ```
 gives `ell/util.h: No such file or directory`
-
-    - bestaat wel maar is een link naar niet bestaande ell directory 1 nivo hoger
+does exist, but is a link to an non existing ell directory 1 level up
  
-libell-dev installed #development files for the Embedded Linux library
-libell0 installed #Embedded Linux library
+```
+apt install libell-dev  #development files for the Embedded Linux library
+apt install libell0  #Embedded Linux library
+```
 
 gives
 `ell/time-private.h - not found`
@@ -180,47 +181,38 @@ sudo systemctl restart bluetooth
 
 ##### %%%running Qemu Using the Host System Bluetooth Controller
 
-###### https://docs.zephyrproject.org/latest/guides/bluetooth/bluetooth-tools.html
+used source: https://docs.zephyrproject.org/latest/guides/bluetooth/bluetooth-tools.html
 
-###### works via serial port of Qemu -  -serial unix:/tmp/bt-server-bredr
- 
-Make sure that the Bluetooth controller is down: **sudo systemctl stop bluetooth** 
+works via serial port of Qemu -  -serial unix:/tmp/bt-server-bredr
+Make sure that the Bluetooth controller is down: 
+```
+sudo systemctl stop bluetooth
+```
 
-###### Use the btproxy tool to open the listening UNIX socket, type:
+Use the btproxy tool to open the listening UNIX socket, type:
+```
+sudo tools/btproxy -u -i 0
+```
+gives `Listening on /tmp/bt-server-bredr`
 
-* sudo tools/btproxy -u -i 0
-
-* Listening on /tmp/bt-server-bredr
-
-##### So,
- 
- **Using the Host System Bluetooth Controller** 
-
+So using the Host System Bluetooth Controller, I use 3 terminal sessions:
 * terminal1
-
-  + sudo systemctl stop bluetooth
- 
-sudo ~/bluez/tools/btproxy -u -i 0
+** sudo systemctl stop bluetooth
+** sudo ~/bluez/tools/btproxy -u -i 0
 
 * terminal2
-
-  + west build -b qemu_x86 samples/bluetooth/<sample>
-
-  + west build -t run
-
-* Now laptop advertises the bluetoothperiphal
+** west build -b qemu_x86 samples/bluetooth/<sample>
+** west build -t run
+** Now laptop advertises the bluetoothperiphal
 
 * terminal3
-
-  + gdb build/zephyr/zephyr.elf
-
-  + gdb> target remote :5678
+** gdb build/zephyr/zephyr.elf
+** gdb> target remote :5678
 
 * terminal4
-
-  + sudo btmon
+** sudo btmon
  
-When I mix the BT heart rate sample with the debug sample, either BT works OR gdb can connect; not both at the same time; **serial socket problem?? Could not find the solution for this after hours of searching** 
+%%%When I mix the BT heart rate sample with the debug sample, either BT works OR gdb can connect; not both at the same time; **serial socket problem?? Could not find the solution for this after hours of searching** 
 
   + ALS in prj.conf, BT_CONFIG=n; dan werkt gdb wel
  

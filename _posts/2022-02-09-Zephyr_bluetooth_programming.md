@@ -195,22 +195,22 @@ sudo tools/btproxy -u -i 0
 ```
 gives `Listening on /tmp/bt-server-bredr`
 
-So using the Host System Bluetooth Controller, I use 3 terminal sessions:
+So using the Host System Bluetooth Controller, I use 4 terminal sessions:
 * terminal1
-** sudo systemctl stop bluetooth
-** sudo ~/bluez/tools/btproxy -u -i 0
+    * sudo systemctl stop bluetooth
+    * sudo ~/bluez/tools/btproxy -u -i 0
 
 * terminal2
-** west build -b qemu_x86 samples/bluetooth/<sample>
-** west build -t run
-** Now laptop advertises the bluetoothperiphal
+    * west build -b qemu_x86 samples/bluetooth/<sample>
+    * west build -t run
+    * Now laptop advertises the bluetoothperiphal
 
 * terminal3
-** gdb build/zephyr/zephyr.elf
-** gdb> target remote :5678
+    * gdb build/zephyr/zephyr.elf
+    * gdb> target remote :5678
 
 * terminal4
-** sudo btmon
+    * sudo btmon
  
 %%%When I mix the BT heart rate sample with the debug sample, either BT works OR gdb can connect; not both at the same time; **serial socket problem?? Could not find the solution for this after hours of searching** 
 

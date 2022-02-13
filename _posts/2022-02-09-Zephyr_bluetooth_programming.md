@@ -1,3 +1,8 @@
+---
+layout: post
+title: Zephyr Bluetooth programming
+---
+
 # Zephyr
 Zephyr is the future and is extremely power efficient. 
     supported by industry

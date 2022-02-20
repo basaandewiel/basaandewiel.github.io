@@ -69,6 +69,10 @@ west build --pristine -b qemu_cortex_m3 samples/hello_world/
 #if you get an error, delete `/zepyrproject/zephyr/build directory
 west build -t run
 ```
+NB: if you want correct timing for for instance k_sleep calls then following must be added to `prj.conf`
+```
+CONFIG_QEMU_ICOUNT=n
+```
 
 #  build and run on Nano 33 BLE
 ```

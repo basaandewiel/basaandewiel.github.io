@@ -117,7 +117,7 @@ west build -t run
 
 # Debugging
 In most cases on board probes are used.
-gdbstubfeature provides an implementation of the GDB Remote Serial Protocol (RSP) that allows you to **remotely** debug Zephyr using GDB.
+gdbstubfeature provides an implementation of the GDB Remote Serial Protocol (RSP) that allows you to debug Zephyr running on your development machine using GDB.
 
 This allows us to run the program via Qemu and attach gdb as debugger.
 

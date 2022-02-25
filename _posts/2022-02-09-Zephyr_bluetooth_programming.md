@@ -4,18 +4,18 @@ title: Zephyr Bluetooth programming
 ---
 
 # Zephyr
-Zephyr is the future and is extremely power efficient. 
-    supported by industry
+Zephyr is an RTOS that should be extremely power efficient and is supported by industry like:
 * Nordic
 * Intel
 * NXP
-* MBed is only for ARM, Zephyr also runs on other architectures.
+
+MBed in contrast is only for ARM, whereas Zephyr also runs on other architectures than ARM.
 
 You can run your Zephyr applications on your x86 machine which might allow you todo a bit of testing on your development machine itself without loading it into the hardware.
-This enable for instance developing code for an Arduino_nano_33_ble, and test in on you linux X86 machine (via Qemu). You can even simulate the bluetooth code using BLuez on your Linux machine.
+This enables for instance developing code for an Arduino_nano_33_ble, and test in on you linux X86 machine (via Qemu). You can even simulate the bluetooth code using BLuez on your Linux machine.
 
 
-##    installation
+##    Installation
 ```
 sudo apt update
 sudo apt upgrade
@@ -49,7 +49,7 @@ mv gcc-arm-none-eabi-9-2019-q4-major gnuarmemb
 export ZEPHYR_TOOLCHAIN_VARIANT=gnuarmemb
 ```
 
-# build and run Qemu x86
+# Build and run Qemu x86
 One of the features I like of Zephyr is that you can test big parts of your embedded software via Qemu on you x86 machine. Togehter with gdb (see below) you can debug on your development machine, without first flashing the firmware to your development board.
 
 To compile and run your software for qemu add `-b qemu_x86`  to the build command line:
@@ -58,8 +58,10 @@ ZEPHYR_TOOLCHAIN_VARIANT=zephyr
 west build --pristine -b qemu_x86 samples/hello_world/
 west build -t run
 ```
+The output of printk statements just appear in hour terminal where you started your program.
 
-# build and run Qemu arm
+
+# Build and run Qemu arm
 You can also build the software for another qemu target, like ARM
 ```
 ZEPHYR_TOOLCHAIN_VARIANT=gnuarmemb @@@
@@ -74,7 +76,8 @@ NB: if you want correct timing for for instance k_sleep calls then following mus
 CONFIG_QEMU_ICOUNT=n
 ```
 
-#  build and run on Nano 33 BLE
+#  Build and run on Nano 33 BLE
+To build and flash program for nano 33 BLE, give following commands:
 ```
 GNUARMEMB_TOOLCHAIN_PATH=/home/$USER/gnuarmemb/
 ZEPHYR_TOOLCHAIN_VARIANT=gnuarmemb
@@ -82,8 +85,9 @@ west build -p auto -b arduino_nano_33_ble samples/bluetooth/peripheral_hr
 west flash --bossac=/home/$USER/.arduino15/packages/arduino/tools/bossac/1.9.1-arduino2/bossac
 screen /dev/ttyACM0
 ```
+To flash you must use the flash program that is installed when you install the Arduino IDE.
 
-# ESP32
+# Build and run on ESP32 (to be tested)
 For building software for ESP32 target, you need to install some things:
 ```
 https://docs.zephyrproject.org/latest/boards/xtensa/esp32/doc/index.html
@@ -95,14 +99,13 @@ export PATH=$PATH:$ESPRESSIF_TOOLCHAIN_PATH/bin
 west espressif update
 ```
 
-# build and flash
+## Build and flash
 ```
 west build --pristine -b esp32 samples/hello_world
 west flash
-#NOT YET TESTED
 ```
 
-# build for qemu
+## Build for qemu
 ```
 export ESPRESSIF_TOOLCHAIN_PATH="${HOME}/.espressif/tools/zephyr"
 #DOES NOT WORK
@@ -114,26 +117,26 @@ west build -t run
 
 # Debugging
 In most cases on board probes are used.
-gdbstubfeature provides an implementation of the GDB Remote Serial Protocol (RSP) that allows you to remotely debug Zephyr using GDB.
+gdbstubfeature provides an implementation of the GDB Remote Serial Protocol (RSP) that allows you to **remotely** debug Zephyr using GDB.
 
-## Qemu
-**Mostly** it is **not used as emulator** but as **virtualizer** in collaboration with **KVM kernel** components. In that case it utilizes the virtualization technology of the hardware to virtualize guests.
+This allows us to run the program via Qemu and attach gdb as debugger.
 
-Qemu consists of
-* CLI
-* Monitor
 
-you can attach any debugger to Qemu that use GDB remote protocol
+## GNU debugger (gdb)
+In order to use gdb, launch QEMU with the -s and-S  options. The-s option will make QEMU listen for an incoming connection from gdb on TCP port 1234, and-S will make QEMU not start the guest until you tell it to from gdb. (If you want to specify which TCP port to use or to use something other than TCP for the gdbstub connection, use the-gdb dev option instead of-s)
 
-### GNU debugger
-In order to use gdb, launch QEMU with the -s and-S  options. The-s option will make QEMU listen for an incoming connection from gdb on TCP port 1234, and-S will make QEMU not start the guest until you tell it to from gdb. (If you want to specify which TCP port to use or to use something other than TCP for the gdbstub connection, use the-gdb dev option instead of-s. SeeUsing unix sockets for an example.)
+First I ran `west --verbose build -t run`. This gives me the total Qemu command that is executed. Then I added the -s and -S options, like this:
+`/home/baswi/zephyr-sdk-0.13.2/sysroots/x86_64-pokysdk-linux/usr/bin/qemu-system-i386 -s -S -m 4 -cpu qemu32,+nx,+pae -device isa-debug-exit,iobase=0xf4,iosize=0x04 -no-reboot -nographic -no-acpi -net none -pidfile qemu.pid -chardev stdio,id=con,mux=on -serial chardev:con -mon chardev=con,mode=readline -icount shift=5,align=off,sleep=off -rtc clock=vm -kernel /home/baswi/zephyrproject/zephyr/build/zephyr/zephyr.elf`
+
+Then in another terminal window type:
+`gdb ~/zephyrproject/zephyr/build/zephyr/zephyr.elf`
+Gdb reads the symbols from the elf file
+
+Now lets gdb connect to QEMU:
  
-In gdb, connect to QEMU:
- 
-(gdb)targetremotelocalhost:1234
+`(gdb)target remote :1234`
 
-* board=qemu_x86; runs in qemu, debug with gdb
-Now you can debug program flow
+Now you can debug your program with gdb.
 
 * board=arduino_nano_33_ble; 
 This can also be run in Qemu; not yet clear to me whether this had advantages over using x86.@@@
@@ -147,8 +150,10 @@ west build -t run
 ```
 This gives
 `qemu-system-i386: -serial unix:/tmp/bt-server-bredr: **Failed to connect to '/tmp/bt-server-bredr** ':`
+Reason is that you have to install a bluetooth stack: BlueZ.
 
-### install BlueZ
+
+### Install BlueZ
 Necessary to be able to run Zephyr programs on x86 which also use Bluetooth
 In Linux Mint: 
 ```

@@ -1,13 +1,10 @@
 ---
 layout: post
-title: Zephyr Bluetooth programming
+title: Zephyr programming with Arduino nano 33 BLE
 ---
 
 # Zephyr
-Zephyr is an RTOS that should be extremely power efficient and is supported by industry like:
-* Nordic
-* Intel
-* NXP
+Zephyr is an RTOS that should be extremely power efficient and is supported by industry like:  Nordic, Intel and NXP.
 
 MBed in contrast is only for ARM, whereas Zephyr also runs on other architectures than ARM.
 
@@ -86,6 +83,67 @@ west flash --bossac=/home/$USER/.arduino15/packages/arduino/tools/bossac/1.9.1-a
 screen /dev/ttyACM0
 ```
 To flash you must use the flash program that is installed when you install the Arduino IDE.
+
+One problem is that printk statements do not show up. After flahsing the device /dev/ttyACM0 is gone. This can be solved as follows:
+Create a file named `app.overlay` in the application directory (one not in the src directory). This file should have the following contents:
+```
+
+/ {
+	chosen {
+		zephyr,console = &cdc_acm_uart0;
+	};
+};
+
+&zephyr_udc0 {
+	cdc_acm_uart0: cdc_acm_uart0 {
+		compatible = "zephyr,cdc-acm-uart";
+		label = "CDC_ACM_0";
+	};
+};
+```
+
+In your program you have to add following lines:
+```
+	const struct device *dev = DEVICE_DT_GET(DT_CHOSEN(zephyr_console));
+	uint32_t dtr = 0;
+
+	if (usb_enable(NULL)) {
+		return;
+	}
+
+	/* Poll if the DTR flag was set */
+	while (!dtr) {
+		uart_line_ctrl_get(dev, UART_LINE_CTRL_DTR, &dtr);
+		/* Give CPU resources to low priority threads. */
+		k_sleep(K_MSEC(100));
+	}
+```
+The file prj.conf must have following contents:
+```
+CONFIG_USB_DEVICE_STACK=y
+CONFIG_USB_DEVICE_PRODUCT="Zephyr USB console sample"
+
+CONFIG_SERIAL=y
+CONFIG_CONSOLE=y
+CONFIG_UART_CONSOLE=y
+CONFIG_UART_LINE_CTRL=y
+```
+
+And the file Kconfig must have following contents:
+```
+source "Kconfig.zephyr"
+```
+
+After thes code is executed printk statements work.
+To see the you have to connect a terminal program to the right device, like
+`screen /dev/ttyACM0`. To quit the screen command use ctrl-A followed by 'd'.
+
+
+
+
+
+
+
 
 # Build and run on ESP32 (to be tested)
 For building software for ESP32 target, you need to install some things:

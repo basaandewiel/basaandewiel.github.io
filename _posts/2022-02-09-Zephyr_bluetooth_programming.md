@@ -138,7 +138,13 @@ After thes code is executed printk statements work.
 To see the you have to connect a terminal program to the right device, like
 `screen /dev/ttyACM0`. To quit the screen command use ctrl-A followed by 'd'.
 
+## Using sensors of Arduino Nano 33 BLE (sense)
+I tried to use sensors of my arduino, but found out that the sensors are not defined in the standard dts (device tree) file supplied for this board (in directory ...zephyrprojects/zephyr/boards/arm/).
+After some searching I found this site https://devzone.nordicsemi.com/f/nordic-q-a/77845/problem-initializing-i2c-on-arduino-nano-33-ble.
 
+It does not only provide an updated device tree with sensors, but also solved a bug in the initialization of the sensors.
+
+**to be completed @@@**
 
 
 

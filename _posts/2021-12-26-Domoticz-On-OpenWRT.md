@@ -90,7 +90,7 @@ config domoticz
 
 ```
 
-Noy need to create one other file, file for starting domoticz as a service. Put this file in `/etc/init.d/domoticz`
+Now need to create one other file, file for starting domoticz as a service. Put this file in `/etc/init.d/domoticz`
 
 ```bash
 #!/bin/sh /etc/rc.common
@@ -204,8 +204,13 @@ If you use domoticz scripts (lua for instance) then you have to copy your script
 If you want to use persistant data in these scripts, then you have to create following directory: 
 `mkdir /var/lib/domoticz/dzVents; mkdir /var/lib/domoticz/dzVents/data`
 This directory is used to store persistant data; 
+
 NB: this persistant data is in RAM disk, but is it persistant across subsequent call to the dzVents script.
 
+NB: when you call some user defined functions then you should probably adapt the path to these functions so that they can be found.
+
+##Debugging
+For debugging Domoticz you can turn on logging (see above). The logging can be read from the standard OpenWRT logging via the GUI or via CLI "logread".
 
 ## Domoticz crashes when autobackupping to a network drive 
 Source used: https://github.com/domoticz/domoticz/issues/4180

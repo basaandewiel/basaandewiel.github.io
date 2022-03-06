@@ -30,6 +30,8 @@ PASSWORD=password
 SMBshare=<name of SMB share on RPI>
 
 #install required packages
+NB: it seems that sometimes installing via CLI gives message that not enough sspace is left, and installing vai Luci does succeed.
+
 opkg update
 opkg install domoticz
 #install for USB ACM port for ZWave stick
@@ -47,7 +49,7 @@ opkg install curl #needed for sending telegram message ico burglar
 opkg install kmod-fs-cifs kmod-nls-base
 mkdir /mnt/share
 #
-mount -t cifs //$IPADRESS/SMBshare /mnt/share/ -o nolock -o username=$USER,password=$PASSWORD
+mount -t cifs //$IPADRESS/SMBshare /mnt/share/ -o nolock,username=$USER,password=$PASSWORD
 cd /var/lib/domoticz
 ln -s /mnt/share/domoticz.db domoticz.db #create soft link to db on RPI
 ln -s /mnt/share/domoticz_backups backups #create soft link to backup directory used for hourly,daily,monthly backups by domoticz
@@ -91,7 +93,7 @@ config domoticz
 Noy need to create one other file, file for starting domoticz as a service. Put this file in `/etc/init.d/domoticz`
 
 ```bash
-ì#!/bin/sh /etc/rc.common
+#!/bin/sh /etc/rc.common
 START=99
 USE_PROCD=1
 #baswi inserted next line
@@ -205,8 +207,9 @@ This directory is used to store persistant data;
 NB: this persistant data is in RAM disk, but is it persistant across subsequent call to the dzVents script.
 
 
-## Domoticz crashes when autobackupping to a network drive #4180
-see https://github.com/domoticz/domoticz/issues/4180
+## Domoticz crashes when autobackupping to a network drive 
+Source used: https://github.com/domoticz/domoticz/issues/4180
+
 When the domoticz.db is on a CIFS mounted drive, as here is the case, the drive must be mounted with the "-o nolock" option. Otherwise Domoticz cannot lock the database when it wants to make a backup of the database, and then Domoticz crashes after 5 minutes of retrying.
 
 ## Known issues/things not working

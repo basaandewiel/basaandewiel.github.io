@@ -3,7 +3,7 @@ layout: post
 title: Zephyr sensors and MQTT - Arduino nano 33 BLE sense
 ---
 
-# Using sensors of Arduino Nano 33 BLE sense
+## Using sensors of Arduino Nano 33 BLE sense
 All files needed to build this program can be found at `https://github.com/basaandewiel/zephyr_hts221_mqtt`. 
 
 

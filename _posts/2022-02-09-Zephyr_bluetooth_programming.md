@@ -38,10 +38,8 @@ ls /etc/udev/rules.d/
 sudo cp ~/zephyr-sdk-0.13.2/sysroots/x86_64-pokysdk-linux/usr/share/openocd/contrib/60-openocd.rules /etc/udev/rules.d
 sudo udevadm control --reload
 cd ~/zephyrproject/zephyr
-mkdir gnuarmemb
-mv Downloads/gcc-arm-none-eabi-9-2019-q4-major-x86_64-linux.tar.bz2 ./
+mv ~/Downloads/gcc-arm-none-eabi-9-2019-q4-major-x86_64-linux.tar.bz2 ./
 tar -xvf gcc-arm-none-eabi-9-2019-q4-major-x86_64-linux.tar.bz2
-rmdir gnuarmemb/
 mv gcc-arm-none-eabi-9-2019-q4-major gnuarmemb
 export ZEPHYR_TOOLCHAIN_VARIANT=gnuarmemb
 ```
@@ -137,18 +135,6 @@ source "Kconfig.zephyr"
 After thes code is executed printk statements work.
 To see the you have to connect a terminal program to the right device, like
 `screen /dev/ttyACM0`. To quit the screen command use ctrl-A followed by 'd'.
-
-## Using sensors of Arduino Nano 33 BLE (sense)
-I tried to use sensors of my arduino, but found out that the sensors are not defined in the standard dts (device tree) file supplied for this board (in directory ...zephyrprojects/zephyr/boards/arm/).
-After some searching I found this site https://devzone.nordicsemi.com/f/nordic-q-a/77845/problem-initializing-i2c-on-arduino-nano-33-ble.
-
-It does not only provide an updated device tree with sensors, but also solved a bug in the initialization of the sensors.
-
-**to be completed @@@**
-
-
-
-
 
 
 # Build and run on ESP32 (to be tested)

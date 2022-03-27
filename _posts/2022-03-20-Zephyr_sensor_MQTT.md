@@ -201,7 +201,7 @@ void main(void)
 }
 ```
 
-
+The MQTT part will be added soon.
 
 
 

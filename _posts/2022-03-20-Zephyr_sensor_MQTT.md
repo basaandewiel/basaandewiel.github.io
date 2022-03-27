@@ -2,10 +2,9 @@
 layout: post
 title: Zephyr sensors and MQTT - Arduino nano 33 BLE sense
 ---
+This posts shows how the sensors on the Arduino nano 33 BLE sense can be used in Zephyr.
 
-## Using sensors of Arduino Nano 33 BLE sense
 All files needed to build this program can be found at `https://github.com/basaandewiel/zephyr_hts221_mqtt`. 
-
 
 I tried to use sensors of my arduino, but found out that the sensors are not defined in the standard dts (device tree) file supplied for this board (in directory ...zephyrprojects/zephyr/boards/arm/).
 After some searching I found this site https://devzone.nordicsemi.com/f/nordic-q-a/77845/problem-initializing-i2c-on-arduino-nano-33-ble.
@@ -118,8 +117,8 @@ static int board_internal_sensors_init(const struct device *dev)
 SYS_INIT(board_internal_sensors_init, APPLICATION, 32);
 ```
 
-First of all I wanted to test whether the sensors are working; so I initialise the temperature and humidity sensors and print their values to the console.
-The following program is working, but *during the first start the sensors are sometimes not recognized; after one reboot it is working; I do not yet know why the behaviour in the first boot is not correct.*
+First of all I wanted to test whether the sensors are working; so I initialised the temperature and humidity sensors and printed their values to the console.
+The following program is working, but *during the first boot the sensors are sometimes not recognized; after a reboot it is always working; I do not yet know why the behaviour after the first boot is not correct.*
 
 ```
 /*

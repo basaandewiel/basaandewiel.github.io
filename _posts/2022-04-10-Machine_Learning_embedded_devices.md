@@ -2,7 +2,6 @@
 layout: post
 title: TinyML - Machine learning on embedded devices, possibilities
 ---
-Used sources: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8271867/
 
 Machine learning is very interesting and also can have several applications on embedded devices. 
 
@@ -18,7 +17,7 @@ But how can we implement applications with machine learning on embedded devices,
 * use special AI-hardware, low latency and no internet connection is necessary
 * etc.
 
-# Train model on host and transfer trained model to embedded device
+# Train model on HOST and transfer trained model to embedded device
 TinyML is a machine learning technique that integrates compressed and optimized machine learning to suit very low-power MCUs
 There are different TimyML frameworks, for instance:
 * TensorFlow Lite (ARM Cortex-M, developed by Google)
@@ -28,12 +27,15 @@ There are different TimyML frameworks, for instance:
 
 
 
-# Train model in cloud and transfer trained model to embedded device
+# Train model in CLOUD and transfer trained model to embedded device
 There are several cloud services that can be used, of instance:
 ## Edgeimpulse
 The cloud service edgeimpulse.com supports several embedded devices (among them the popular Arduino nano 33 BLE sense, but also the Nordic Thingy:91). 
 With edgeimpulse you can train a model with their cloud service, and export for instance a portable C++ library of the trained model, that can be used in programming a application for the embedded device. 
 They have a very good tutorial on this.
 A sample appication combines signal processing (to extract features), neural networks (for classification) and clustering algorithms(for anomaly detection) to classify the output of a movement sensor.
+
+I tried to get this running with Zephyr on an Arduino nano 33 ble sense (using the input of https://docs.edgeimpulse.com/docs/tutorials/running-your-impulse-locally/running-your-impulse-locally-zephyr, but did not succeed yet to build this succesfully. 
+
 
 

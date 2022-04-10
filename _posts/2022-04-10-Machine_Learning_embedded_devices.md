@@ -22,7 +22,7 @@ TinyML is a machine learning technique that integrates compressed and optimized 
 There are different TimyML frameworks, for instance:
 * TensorFlow Lite (ARM Cortex-M, developed by Google)
 * CMSIS-NN (ARM Cortex-M, developed by AMR)
-* TinyMLgen (ARM Cortex-M and ESP31)
+* TinyMLgen (ARM Cortex-M and ESP32)
 
 
 

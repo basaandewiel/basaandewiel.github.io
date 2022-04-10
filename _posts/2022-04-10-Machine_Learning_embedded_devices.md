@@ -9,6 +9,8 @@ Machine learning is very interesting and also can have several applications on e
 Appications usually have to do with all kind of different sensors on these embedded devices. For instance categorising movement of objects during transport - are they handled with care? Is the box (on which the embedded device is present never flipped/turned upside down?
 This are only a few examples; the possibilities are endless.
 
+TinyML is a machine learning technique that integrates compressed and optimized machine learning to suit very low-power MCUs
+
 But how can we implement applications with machine learning on embedded devices, and what scenario should be applied in which situation?
 * transfer the signals to a cloud service that uses machine learning and proces the results (requires reliable internet connection with sufficient bandwidth, and latency should nog be a problem)
 * train a model on a host/in the cloud, and then migrate the trained model to the embedded device? (low latency and embedded device does not need internet connection)

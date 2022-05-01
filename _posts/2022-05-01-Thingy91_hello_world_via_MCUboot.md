@@ -23,6 +23,7 @@ NB: I assume that MCUboot is already programmed on your Thingy91, and that you h
     * add file; browse to `...samples/helloworld/build/zephyr/app_signed.hex`
     * write file to thingy
 * Thingy: switch off and on via switch (plugging in/out USB cable is not enough, because Thingy91 is also battery powered)
-* start VScode (I used VScode to connect to the COM port; I could not get this working via Putty yet)
+* start VScode (I used VScode to connect to the COM port; I could not get this working via Putty on Windows yet)
     * nrf terminal; connect to COM6 (windows), 115200 8n2 rtscts:off
+* In linux the following also works: `screen /dev/ttyACM0 115200`
 

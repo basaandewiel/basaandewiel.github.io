@@ -7,12 +7,10 @@ This posts summarises how you can run the hello world sample on the Nordic Thing
 
 NB: I assume that MCUboot is already programmed on your Thingy91, and that you have installed all necessary software as nRF Connect for Desktop (see Nordic documentation on how to do this)
 
-* edit `...samples/hello_world/prj.conf`
-    * add line with `CONFIG_BOOTLOADER_MCUBOOT=y` //so that correct hex file is built
-        * we need the file app_signed.hex to be built; this is only generated when we enable MCUboot in the prj.conf file
 * VScode
     * create build configuration
-        * set board to thingy91_nrf9160_ns (so no secure version!)
+        * set board to thingy91_nrf9160_ns (so no secure version!). By doing this CONFIG_BOOTLOADER_MCUBOOT is set to 'y', so we do not have to do this in our prj.conf file.
+Without this CONFIG_BOOTLOADER_MCUBOOT setting the necessary hex file `app_signed.hex` is not built; 
     * build the application
     * close vscode (otherwise you can not program hex file to Thingy, because the com port is in use)
 * put thing91 in mode for programming nrf9160 (switch Thingy91 off; hold big middle button and switch it on again)

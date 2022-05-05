@@ -49,7 +49,7 @@ opkg install curl #needed for sending telegram message ico burglar
 opkg install kmod-fs-cifs kmod-nls-base
 mkdir /mnt/share
 #
-mount -t cifs //$IPADRESS/SMBshare /mnt/share/ -o nolock,username=$USER,password=$PASSWORD
+mount -t cifs //$IPADDRESS/SMBshare /mnt/share/ -o nolock,username=$USER,password=$PASSWORD
 cd /var/lib/domoticz
 ln -s /mnt/share/domoticz.db domoticz.db #create soft link to db on RPI
 ln -s /mnt/share/domoticz_backups backups #create soft link to backup directory used for hourly,daily,monthly backups by domoticz

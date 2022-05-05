@@ -9,10 +9,10 @@ NB: I assume that MCUboot is already programmed on your Thingy91, and that you h
 
 * VScode
     * create build configuration
-        * set board to thingy91_nrf9160_ns (so no secure version!). By doing this CONFIG_BOOTLOADER_MCUBOOT is set to 'y', so we do not have to do this in our prj.conf file.
+        * set board to thingy91_nrf9160_ns (so no secure version!). By doing this CONFIG_BOOTLOADER_MCUBOOT is set to 'y' (via `thingy91_nrf9160_ns_defconfig`), so we do not have to do this in our prj.conf file.
 Without this CONFIG_BOOTLOADER_MCUBOOT setting the necessary hex file `app_signed.hex` is not built; 
     * build the application
-    * close vscode (otherwise you can not program hex file to Thingy, because the com port is in use)
+    * close the serial connection in vscode, or close vscode (otherwise you can not program hex file to Thingy, because the com port is in use)
 * put thing91 in mode for programming nrf9160 (switch Thingy91 off; hold big middle button and switch it on again)
 * Open NCS->programmer app via nRF Connect for Desktop
     * select device

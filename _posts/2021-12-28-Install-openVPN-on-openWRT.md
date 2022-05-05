@@ -38,6 +38,13 @@ After you have installed the OpenVPN package these two instances will be automat
 
 NB: this guide does not use the GUI methode (Luci) for installing OpenVPN, but uses command line.
 
+Both OpenVPN instances you their own
+* tun device
+* subset (of IP-addresses that are assigned to clients)
+
+
+
+
 ## Install packages
 Install the required packages. Specify the VPN server configuration parameters.
 

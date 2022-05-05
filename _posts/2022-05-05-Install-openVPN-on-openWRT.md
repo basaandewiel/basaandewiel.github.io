@@ -24,14 +24,14 @@ I have not invented all instructions myself :), but have used this site:
 # Instructions
 NB: I used the above site, but following the instructions from that site exactly resulted in a non operating router, so please stick to the instructions below.
 
-## End situation
+## End situation and inner workings
 Firs I describe the end situation, and how openVPN will work after you have followed this guide. This to maken you understand what is happening.
 
 You will have 2 instances of OpenVPN running:
 * servertcp443.conf
 * serverudp1194.conf
 
-The first one is listening on TCP port 443. This port is always open (it is used by https); I made this instance because the default UDP port 1194 is not always open when you are traveling.
+The first one is listening on TCP port 443. This port is always open at every location you visit (it is used by https); I made this instance because the default UDP port 1194 is not always open when you are traveling.
 Just to be sure I also added an instance that listens to UDP port 1194.
 
 After you have installed the OpenVPN package these two instances will be automatically started when the above mentioned files are present in directory `/etc/openvpn/
@@ -42,7 +42,10 @@ Both OpenVPN instances you their own
 * tun device
 * subset (of IP-addresses that are assigned to clients)
 
+Of course in the firewall rules are added to accept the traffic sent by a client to one of the two openVPN instances.
 
+
+For the client side you get two .ovpn files (one for each OpenVPN instance) that can be imported in the client OpenVPN application.
 
 
 ## Install packages
@@ -50,8 +53,8 @@ Install the required packages. Specify the VPN server configuration parameters.
 
 ```opkg update
 opkg install openvpn-openssl openvpn-easy-rsa
-# Configuration parameters
-# OVPN_POOL config any network are OK except your local network\
+#Configuration parameters
+#OVPN_POOL config any network are OK except your local network\
 OVPN_DIR="/etc/openvpn"
 OVPN_PKI="/etc/easy-rsa/pki"
 OVPN_PORT="1194"
@@ -60,14 +63,14 @@ OVPN_POOL="192.168.8.0 255.255.255.0"
 OVPN_DNS="${OVPN_POOL%.* *}.1"
 OVPN_DOMAIN="$(uci get dhcp.@dnsmasq[0].domain)"
  
-# Fetch WAN IP address
+#Fetch WAN IP address
 . /lib/functions/network.sh
 network_flush_cache
 network_find_wan NET_IF
 network_get_ipaddr NET_ADDR "${NET_IF}"
 OVPN_SERV="${NET_ADDR}"
  
-# Fetch FQDN from DDNS client
+#Fetch FQDN from DDNS client
 NET_FQDN="$(uci -q get ddns.@service[0].lookup_host)"
 if [ -n "${NET_FQDN}" ]
 then OVPN_SERV="${NET_FQDN}"

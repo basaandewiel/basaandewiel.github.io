@@ -2,10 +2,9 @@
 layout: post
 title: Syncing IOS contact with Office365 
 ---
-## The problem
 I am using Windows laptop with Office365 and recently switched from an Android phone to Apple IOS.
-Question was how to handle my contacts.
-Should I put everything in iCloud and install the Outlook iCloud plugin, ro not?
+After this change to IOS the question popped up how to handle my contacts.
+Should I put everything in iCloud and install the Outlook iCloud plugin, or not?
 
 I ended up in all my contacts in both Office365 (Outlook) AND IOS contacts (iCloud). And if I added a contact on my phone (for instance when you receive a call from an until then unknown number), that contact appeared only in IOS contacts, and not in Office365.
 

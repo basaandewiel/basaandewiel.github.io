@@ -64,7 +64,8 @@ For the client side you get two .ovpn files (one for each OpenVPN instance) that
 ## Install packages
 Install the required packages. 
 
-```opkg update
+```
+opkg update
 opkg install openvpn-openssl openvpn-easy-rsa
 #Configuration parameters
 #OVPN_POOL config any network are OK except your local network\

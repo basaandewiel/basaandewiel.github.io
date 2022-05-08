@@ -300,7 +300,7 @@ config rule
 config include
 	option path '/etc/firewall.user'
 ```
-
+After changing this firewall configuration file, the firewall should be restarted via `/etc/init.d/firewall restart'.
 
 ## VPN service
 
@@ -375,7 +375,7 @@ done
 ls ${OVPN_DIR}/*.ovpn
 ```
 
-This script generates only the .ovpn file the UDP/1194. You should copy this file and change a number of things to create a server config file for the TCP/443 version. You have to adapt the following after copying:
+This script generates only the .ovpn file the UDP/1194. You should copy this file and change a number of things to create a server config file for the TCP/443 version. You have to change the following after copying:
 ```
 user nobody
 group nogroup
@@ -394,7 +394,7 @@ push "redirect-gateway def1"
 push "persist-tun"
 push "persist-key"
 ```
-to
+into
 ```
 user nobody
 group nogroup
@@ -418,7 +418,7 @@ push "persist-key"
 ```
 The rest of the file should not be changed!
 
-@@@Perform OpenWrt backup. Extract client profiles from the archive and import them to your clients.
+Now you should get the client config files of the OpenWRT router to your client device. You can do this for instance with the `scp` command. Another possibility is to make a backup of via OpenWRT configuration (via the GUI: system->backup/flash firmware->generate archive'). This gives you a .tar.gz file, that you can open  and extract the client profiles from the archive and import them to your clients.
 
 If you want additional clients .ovpn run this multi-client script:
 ```
@@ -442,26 +442,19 @@ export EASYRSA_PKI="${OVPN_PKI}"
 export EASYRSA_REQ_CN="ovpnca"
 export EASYRSA_BATCH="1"
  
- 
 # Generate client keys and certificate
 easyrsa build-client-full client3 nopass
 openvpn --tls-crypt-v2 ${EASYRSA_PKI}/private/server.pem \
 --genkey tls-crypt-v2-client ${EASYRSA_PKI}/private/client.pem
 ```
 
-
+To revoke a cilent certificate use:
 ```
- 
 # Revoke client certificate
 easyrsa revoke client
- 
- 
-/etc/init.d/openvpn restart
 ```
 
-
-
-
-Now make a script consisting of the “Configuration parameters” of Part 1 above and all of Part 4 above and run it. Note that the “remote” line may be missing in the new ovpn (use the original as a reference for that).
+Now start the OpenVPN instances via  
+` /etc/init.d/openvpn restart` 
 
  

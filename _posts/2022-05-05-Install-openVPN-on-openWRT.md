@@ -14,18 +14,18 @@ With OpenVPN I have only one 'hole' in my firewall, that can only be accessed wh
 ## Prerequisites
 * You should have a router with OpenWRT already installed, and you should have access via SSH to this OpenWRT router.
 
-I have tested this on Linksys WRT3200ACM with OpenWRT 21.01.
+I have tested the instructions on my Linksys WRT3200ACM with OpenWRT 21.01.
 
 ## Used sources
 I have not invented all instructions myself :), but have used this site:
 * https://openwrt.org/docs/guide-user/services/vpn/openvpn/server
-
+I have added extra instructions where necessary, and also added comments on why certain instructions are necessary.
 
 # Instructions
 NB: I used the above site, but following the instructions from that site exactly resulted in a non operating router, so please stick to the instructions below.
 
 ## End situation and inner workings
-First I describe the end situation, and how openVPN will work after you have followed this guide. This to maken you understand what is happening.
+First I describe the end situation, and how openVPN will work after you have followed this guide. This to make you understand what is happening.
 
 You will have 2 instances of OpenVPN running:
 * servertcp443.conf
@@ -36,10 +36,10 @@ Just to be sure I also added an instance that listens to UDP port 1194.
 
 After you have installed the OpenVPN package these two instances will be automatically started when the above mentioned files are present in directory `/etc/openvpn/
 
-NB: this guide does not use the GUI methode (Luci) for installing OpenVPN, but uses command line. When you should configure OpenVPN via Luci the config files are place in /etc/config/openvpn. /etc/init.d/x reads /etc/config/x and OVERwrites to /etc/x/. So you should not mix configuring via Luci and via command line!
+NB: this guide does not use the GUI method (Luci) for installing OpenVPN, but uses command line. When you should configure OpenVPN via Luci the config files are placed in `/etc/config/openvpn`. `/etc/init.d/x` reads `/etc/config/x` and OVERwrites to `/etc/x/`. So you should not mix configuring via Luci and via command line!
 
 
-Both OpenVPN instances you their own
+Both OpenVPN instances have their own
 * tun device
 * subset (of IP-addresses that are assigned to clients)
 
@@ -53,7 +53,7 @@ Of course in the firewall rules are added to accept the traffic sent by a client
 * this subnet makes the incoming traffic to arrive in zone 'vpn' (look at network->firewall; edit zone vpn->advanced settings: there you see "Use this option to classify zone traffic by source or destination subnet instead of networks or devices" and there is 192.168.8.0 filled in. Probably it is also possible to use device tun0 to classify the traffic in stead of the subnet(s).
 * lan zone is allowed to forward traffic to the vpn zone (fw settings->general)
 * vpn zone is allowed to forward traffic to lan zone
-* so the vpn traffic can travel to all destinations (because lan is allowed to  forwarden traffic to wan)
+* so the vpn traffic can travel to all destinations (because lan is allowed to forward traffic to wan)
 
 
 For the client side you get two .ovpn files (one for each OpenVPN instance) that can be imported in the client OpenVPN application.
@@ -62,7 +62,7 @@ For the client side you get two .ovpn files (one for each OpenVPN instance) that
 
 
 ## Install packages
-Install the required packages. Specify the VPN server configuration parameters.
+Install the required packages. 
 
 ```opkg update
 opkg install openvpn-openssl openvpn-easy-rsa

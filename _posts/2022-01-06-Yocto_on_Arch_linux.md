@@ -2,7 +2,11 @@
 layout: post
 title: Yocto on Arch linux (running first build on qemu)
 ---
-## Situation
+With Yocto you can create your own embedded linux distribution. So **you** can decide what will be incorporated in the linux image and what not. You can customise your linux image and optimise it for the embedded system you are using.
+
+To try Yocto I build my own linux distro and run it via qemu.
+
+## Instructions
 Install Yocto on Arch linux and build your first target and run it via qemu
 
 ```bash

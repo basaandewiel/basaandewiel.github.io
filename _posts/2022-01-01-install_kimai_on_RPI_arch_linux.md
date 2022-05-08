@@ -2,7 +2,10 @@
 layout: post
 title: Install kimai (hour registration) on RPI running Arch linux
 ---
-## install kimai
+I always kept my work hour registration (how much time for what project) in my Android app (My work clock).
+After switching to IOS I have looked for a comparable app, but could not find a right one. So I installed the open source Kima hour registration on my Raspberry Pi3 running arch linux.
+
+## Install kimai
 ```bash
 cd /srv/http/
 git clone -b 1.16.9 --depth 1 https://github.com/kevinpapst/kimai2.git
@@ -34,7 +37,7 @@ cd var
 sudo chmod o+w sessions/
 ```
 
-## Backup your kimai database
+## Backup your Kimai database
 Of course you want to regulary backup your kimai database; you can do this as follows:
 ```bash
 mysqldump --single-transaction -u kimai -p -h 127.0.0.1 kimaidb > ~/kimaidb-`date +%F_%H-%M`.sql

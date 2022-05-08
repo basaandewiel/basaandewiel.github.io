@@ -1,15 +1,16 @@
 ---
 layout: post
-title: Install Domoticz on router running OpenWRT
+title: Install Domoticz including Zwave support  on router running OpenWRT
 ---
+I was running Domoticz on my Raspberry PI (RPI), but because I also did some development work on the RPI, sometimes the RPI crashed. And my Domoticz should always be running, because all my home automation runs on it.
+
+I also had a Linksys 3200 ACM router, running OpenWRT, with enough empty space. So I wanted to install domoticz on it, including a Zwave USB-stick. This blog describes the instructions on how to do this.
+
 ## Used configuration
 - hardware: Linksys WRT3200ACM
 - firmware version: OpenWrt 21.02.1 r16325-88151b8303 / LuCI openwrt-21.02 branch git-21.357.58218-b3cd473
 
 
-I was running domoticz on my Raspberry PI (RPI), but because I also did some development work on the RPI, sometimes the RPI crashed. And my Domoticz should always be running, because of all home automation running on it.
-
-I also had a Linksys 3200 ACM router, running OpenWRT, with enought empty space. So I wanted to install domoticz on it, including a Zwave USB-stick.
 The code below installs everything on OpenWRT that is neede to run domoticz. 
 
 NB: I store the domoticz database on my RPI to prevent space problems on my router.

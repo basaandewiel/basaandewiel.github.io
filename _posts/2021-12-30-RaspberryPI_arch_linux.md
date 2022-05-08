@@ -1,7 +1,8 @@
 ---
 layout: post
-title: Several (Arch) linux tips: SSH-keys, letsencrypt, log4j, ...
+title: Several (Arch) linux tips: SSH-keys, letsencrypt, log4j
 ---
+
 In this post I describe several (Arch) linux tips, I used myself on my raspberry PI running Arch linux. Maybe they are also helpful for you.
 
 

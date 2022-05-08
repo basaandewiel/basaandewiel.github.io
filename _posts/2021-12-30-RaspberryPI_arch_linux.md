@@ -1,12 +1,15 @@
 ---
 layout: post
-title: Raspberry PI (3) - Arch linux
+title: Several (Arch) linux tips: SSH-keys, letsencrypt, log4j, ...
 ---
-## SSH using keys in stead of username/password
-In most cases it is preferrable, and easier to use keys to login you Linux box with SSH.
+In this post I describe several (Arch) linux tips, I used myself on my raspberry PI running Arch linux. Maybe they are also helpful for you.
+
+
+## Using SSH keys to login to Linux in stead of user name/password
+In most cases it is preferrable, and easier to use keys to login your Linux box with SSH.
 For a very good and understandable explanation of the keys see https://wiki.archlinux.org/title/SSH_keys.
 
-Following commands have to be executed on client (NOT on SSH-server):
+To enable logging in via keys the following commands have to be executed on client (NOT on SSH-server):
 ```bash
 # Generate key pair with comment  comment saying which user created the key on which machine and when
 ssh-keygen -C "$(whoami)@$(uname -n)-$(date -I)" #accept default location for storage of keys

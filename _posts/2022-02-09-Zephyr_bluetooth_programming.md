@@ -12,6 +12,8 @@ This enables for instance developing BLE applications for an Arduino_nano_33_ble
 
 ## Installation
 You can find good documentation on installing Zephyr. Below are the instructions I used to install Zephyr on Linux mint 20.3.
+
+NB: On Linux installing via the tools SDK manager and Toolchain manager, and automatically installing required VScode extensions, does give an error in VScode: `could not find nrfjprog` where that tool is in the PATH.
 ```
 sudo apt update
 sudo apt upgrade
@@ -30,9 +32,26 @@ west update
 west zephyr-export
 pip3 install --user -r ~/zephyrproject/zephyr/scripts/requirements.txt
 cd
-wget https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v0.13.2/zephyr-sdk-0.13.2-linux-x86_64-setup.run
-chmod +x zephyr-sdk-0.13.2-linux-x86_64-setup.run
-./zephyr-sdk-0.13.2-linux-x86_64-setup.run -- -d ~/zephyr-sdk-0.13.2
+```
+download from website: zephyr-sdk-0.15.1_linux-aarch64_minimal.tar.gz 
+
+```
+cd ~/Downloads
+tar -xvf zephyr-sdk-0.15.1_linux-aarch64_minimal.tar.gz 
+cd zephyr-sdk-0.15.1/
+./setup.sh 
+cd ..
+mv zephyr-sdk-0.15.1 /usr/local
+sudo mv zephyr-sdk-0.15.1 /usr/local
+cd /usr/local
+chmod 777 zephyr-sdk-0.15.1/
+cd zephyr-sdk-0.15.1/
+./setup.sh 
+
+```
+
+The instructions below were not executed after the failing install via SDK manager and Toolchain manager.
+```
 ls /etc/udev/rules.d/
 sudo cp ~/zephyr-sdk-0.13.2/sysroots/x86_64-pokysdk-linux/usr/share/openocd/contrib/60-openocd.rules /etc/udev/rules.d
 sudo udevadm control --reload

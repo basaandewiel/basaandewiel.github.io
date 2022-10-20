@@ -5,7 +5,19 @@ title: Nordic Thingy91 - hello world, built with VScode, programmed via USB (MCU
 
 This posts summarises how you can run the hello world sample on the Nordic Thingy91. I had to do some special things because I do not have a programmer. So I had to program the hello word sample via MCUboot.
 
+# Installing
 NB: I assume that MCUboot is already programmed on your Thingy91, and that you have installed all necessary software as nRF Connect for Desktop (see Nordic documentation https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/gs_assistant.html)
+
+On Ubuntu 20.0 I could not get everything working; VScode does work with the plugins, but complaints that it cannot find the "Nrf command line tools"  unless they are installed.
+I ended up with using VScode for developing the application.
+* Flashing is done via "Connect for Desktop" and then starting the "Programmer"; see below.
+* Installing Connect for Desktop
+    * Download the Appimage for linux; could not install version 3.12 (gave error about graphics driver); Solution was to install version 3.9, and let it upgrade itself
+
+
+# Build and flash hello world app
+* edit ...samples/helloworld/prj.conf
+    * add line with "CONFIG_BOOTLOADER_MCUBOOT=y" //so that correct hex file is build
 
 * VScode
     * create build configuration

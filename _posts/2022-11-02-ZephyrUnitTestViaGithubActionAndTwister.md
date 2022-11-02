@@ -2,7 +2,6 @@
 layout: post
 title: Automatic builds and (unit) tests of Zephyr program via GitHub Actions and Twister
 ---
-# Why automatic builds and unit testing via Github Actions?
 I had developed several Zephyr programs. I like Zephyr very much, see also my other blogposts about Zephyr, but Zephyr and the Nordic SDK are still in development.
 This means things are changed, and when you do not regulary build you programs using the latest versions, you don't know whether you programs still work.
 

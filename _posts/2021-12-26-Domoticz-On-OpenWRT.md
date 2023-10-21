@@ -50,6 +50,7 @@ opkg install curl #needed for sending telegram message ico burglar
 opkg install kmod-fs-cifs kmod-nls-base
 mkdir /mnt/share
 #
+# 231021 NB: from openwrt 23.05 nolock gives 'invalid argument'
 mount -t cifs //$IPADDRESS/SMBshare /mnt/share/ -o nolock,username=$USER,password=$PASSWORD
 cd /var/lib/domoticz
 ln -s /mnt/share/domoticz.db domoticz.db #create soft link to db on RPI

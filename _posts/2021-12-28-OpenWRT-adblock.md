@@ -21,3 +21,5 @@ Put all the URLs in this file, which you want to be white listed. So if you for 
 To take effect, you have to  restart adblock:
 `/etc/init.d/adblock restart`
  
+ NB: if the adblock definitions cannot be downloaded (as you can see in the log view), then try
+ `opkg update; opkg install libcurl4` (worked on OpenWRT 21.02.1 r16325-88151b8303 / LuCI openwrt-21.02 branch git-21.295.67054-13df80d)

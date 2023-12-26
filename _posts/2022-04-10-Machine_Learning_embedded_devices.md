@@ -33,6 +33,16 @@ There are several cloud services that can be used, of instance:
 The cloud service edgeimpulse.com supports several embedded devices (among them the popular Arduino nano 33 BLE sense, but also the Nordic Thingy:91). 
 With edgeimpulse you can train a model with their cloud service, and export for instance a portable C++ library of the trained model, that can be used in programming a application for the embedded device. 
 They have a very good tutorial on this.
+
+Testing with Thingy91:
+```
+curl -sL https://deb.nodesource.com/setup_12.x | sudo bash -
+sudo apt install -y gcc g++ make build-essential nodejs sox gstreamer1.0-tools gstreamer1.0-plugins-good gstreamer1.0-plugins-base gstreamer1.0-plugins-base-apps
+npm config set user root && sudo npm install edge-impulse-linux -g --unsafe-perm
+
+```
+
+
 A sample appication combines signal processing (to extract features), neural networks (for classification) and clustering algorithms(for anomaly detection) to classify the output of a movement sensor.
 
 I tried to get this running with Zephyr on an Arduino nano 33 ble sense (using the input of https://docs.edgeimpulse.com/docs/tutorials/running-your-impulse-locally/running-your-impulse-locally-zephyr, but did not succeed yet to build this succesfully. 

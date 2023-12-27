@@ -130,9 +130,9 @@ Running pacman -Syu in the future will install also install the latest Pi Founda
 Handling future official Pi 5 support
 
 When Arch Linux ARM starts supporting the Pi 5, the Pi Foundation’s kernel can be replaced with the mainline kernel by running:
-'''
+```
 pacman -Syu linux-aarch64 uboot-raspberrypi
-'''
+```
 
 There will be warning that those packages conflict with package linux-rpi and whether you want it replaced. If you do, linux-rpi will be removed before installing the new packages. After that, your Arch Linux ARM installation should be the same as the official Arch Linux ARM Raspberry Pi image that supports the Pi 5.
 
@@ -154,5 +154,6 @@ During boot still the boot partition from sd card is used.
 
 Create root and data partition via fdisk.
 Copy root from SD to hard drive:
-```sudo rsync -axv / /mnt```
+
+    sudo rsync -axv / /mnt
 

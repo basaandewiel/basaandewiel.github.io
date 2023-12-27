@@ -67,7 +67,7 @@ This is removed in the most barbaric way, but it works! Make sure to run this co
 
 rm -rf ${SDMOUNT}/boot/*
 
-Add the Pi Foundation kernel
+udd the Pi Foundation kernel
 
 mkdir -p ${DOWNLOADDIR}/linux-rpi
 pushd ${DOWNLOADDIR}/linux-rpi
@@ -143,4 +143,16 @@ There will be warning that those packages conflict with package linux-rpi and wh
 
 © 2023Sven Kiljandd
 
+# Boot from hard disk iso sd card (added by myself)
+Copy the root from sd to hd:
+``` tar cf - sdroot | (cd /mnt/root;tar xf -)```
+
+edit sdcard:/boot/cmdline.txt
+change ROOT device to root partition on hard disk
+
+During boot still the boot partition from sd card is used.
+
+Create root and data partition via fdisk.
+Copy root from SD to hard drive:
+```sudo rsync -axv / /mnt```
 

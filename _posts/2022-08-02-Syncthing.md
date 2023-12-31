@@ -24,7 +24,7 @@ Replace <user> by the user name as which the service should run.
 # Configuration
 Because my RPI has no desktop, I have to maken the GUI remote availabe.
 
-* edit `config.xml`  in the syncthing directory
+* edit `~/.local/state/syncthing/config.xml
 *    change 127.0.0.1 to 0.0.0.0
 * on another device (like laptop) point broswer to <IP of RPI>:8384
 *    add user name and password to secure the GUI

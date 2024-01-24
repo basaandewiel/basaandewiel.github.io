@@ -71,6 +71,7 @@ and insert the following is this profile:
 
 You have a course to adapt the above IP address to fit in your LAN; and use an IP-address outside the range of you DHCP-server.
 
+
 Now create and launch an arch linux container named `arch1`.
 ```
 incus  launch images:archlinux arch1 -c security.privileged=true --profile default --profile routed_192.168.1.30
@@ -82,12 +83,19 @@ To start an interactive shell in the container `arch1`, use following command:
 ```
 incus exec arch1 -- bash
 ```
-Now check inside the container whether you have internet access.
-If you do not have internet access then go back to the host system, and try following command
+
+## No internet access from within the container
+A problem that occurs regulary is that there is no internet access from within the container.
+Note that if your system supports and uses nftables, LXD detects this during installation and switches to nftables mode. In this mode, LXD adds its rules into the nftables, using its own nftables namespace.
+
+
+If you do not have internet access then go back to the host system, and try following commands
 ```
 nft flush ruleset
+systemctl restart incus
 ```
-This fushes the rules of the firewall nft. The nft firewall is installed together with incus. Especially if you also use Docker on the host system, docker adds some rules to the nft firewall. If you have internet access in the container after flushing the nft firewall rules, you know where to search the cause of the problem. Most times is has to do with the FORWARD chain, where packets are not accepted.
+This fushes the rules of the firewall nft, and restarts incus. Especially if you also use Docker on the host system, docker adds some rules to the nft firewall. If you have internet access in the container after flushing the nft firewall rules, you know where to search the cause of the problem. Most times is has to do with the FORWARD chain, where packets are not accepted.
+The order of starting Incus, own fw and Docker can influence what fw-rules are active.
 
 
 Now can install packages etc, which are persistant after stopping the container.

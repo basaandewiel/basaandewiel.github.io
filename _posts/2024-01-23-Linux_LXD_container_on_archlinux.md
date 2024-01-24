@@ -1,90 +1,92 @@
 ---
 layout: post
-title: Linux LXD container on Arch Linux
+title: Linux LXD/incus container on Arch Linux
 ---
 
-In this post I describe my experience with installing LXD/Incus containers on Arch Linux.
+# Introduction
+In this post I describe my experience with installing LXD/Incus containers on Arch Linux. 
 
 LXD is an ultra fast linux only hypervisor. LXD containers share the kernel.
-So not the whole OS is shared,like Docker.
-LXD containers feels like a VM.
+So not the whole OS is shared,like with Docker containers.
 
-Unlike Docker - all data in every container instance is persistent, and any changes you make are permanent unless you revert to a backup. In short, shutting down the container will not erase any issues you might have introduced
+Unlike Docker - all data in every container instance is persistent, and any changes you make are permanent unless you revert to a backup. In short, shutting down the container will not erase any issues you might have introduced.
+This means that you can for instance start an interactive shell in the container, install some packages and then stop the container. When you restart the container the packages you just installed are still present.
+So the container feels like a VM.
 
 The LXD project is no longer part of the Linux Containers project but can now be found directly on Canonical's websites.
 A community fork of LXD, Incus, is now part of the Linux Containers project.
 
-On Arch Linux Incus is now the default software for Linux containers.
+On Arch Linux Incus is now the default software for Linux containers. This is also the reason I used `incus` in stead of LXD.
 
 
-Installation instructions for Incus on Arch Linux.
+## Used sources
+* https://blog.simos.info/how-to-get-lxd-containers-get-ip-from-the-lan-with-routed-network/
+
+# Installation
+The installion of incus is straightforward. For me the most difficult part was to get internet access from within the running container, so the networking part.
+
+
+Install and init incus.
 ```
     pacman -S incus
     systemctl start incus
     incus admin init
 ```
-Answer: 'no bridge'
-    define profiles for networking in containers
-        source
-            https://blog.simos.info/how-to-get-lxd-containers-get-ip-from-the-lan-with-routed-network/
-            LXD containers get an IP-address from the LAN (using routed)
-        use a routed NIC instead of connecting the instance to the lxdbr0 bridge.
-        incus profile create routed
-        EDITOR=vim incus profile edit routed
-            config:
-              user.network-config: |
-                version: 2
-                ethernets:
-                    eth0:
-                        addresses:
-                        - 192.168.1.30/32
-                        nameservers:
-                            addresses:
-                            - 8.8.8.8
-                            search: []
-                        routes:
-                        -   to: 0.0.0.0/0
-                            via: 169.254.0.1
-                            on-link: true
-            description: Default LXD profile
-            devices:
-              eth0:
-                ipv4.address: 192.168.1.30
-                nictype: routed
-                parent: end0 ***must match host if***
-                type: nic
-            name: routed
-            used_by: []
-        incus profile copy routed routed_192.168.1.30
-        evt: incus profile edit routed_192.168.1.30 to adapt IP-addr in it
-    create and start container
-        incus network list => bride has an IP addr ....200
-        incus launch images:archlinux arch1 --profile default --profile routed_192.168.1.30
-            incus list => NO IP address
-        incus launch images:archlinux arch1
-            incus list => IP address 192.168.1.12
-            but cannot ping host from within container
-            journalctl -u systemd-networkd
-        incus  launch images:archlinux arch1 -c security.privileged=true
-            incus list => IP address 192.168.1.197
-            incus network list => incsbr0 192.168.200/24
-            but cannot ping host from within container
-            in container # ip route show
-                default via 192.168.1.200 dev eth0 proto dhcp src 192.168.1.197 metric 1024
-                192.168.1.0/24 dev eth0 proto kernel scope link src 192.168.1.197 metric 1024
-                192.168.1.200 dev eth0 proto dhcp scope link src 192.168.1.197 metric 1024
-                but 192.168.1.200 is not pingable
-        incus  launch images:archlinux arch1 -c security.privileged=true --profile default --profile routed_192.168.1.30
-            incus list => 192.168.1.30 (eth0)
-            incus network list =>| incusbr0        | bridge   | YES     | 192.168.1.200/24
-            in container: ip route => default via 169.254.0.1 dev eth0
-            169.254.0.1 dev eth0 scope link
-            can even ping internet URLs
-        ip addr a192.168.1.21/24  dev eth0
-        ip route add default  via192.168.1.1
-    stop/delete container
-        incus stop arch1
-        incus delete arch1
-    host: #ip r
-        gives ethernet devices, including those of containers
+Now you get an amount of questions you have to answer. For most questions the default value is good.
+For the networking part, answer that you **do not need a bridge**.
+We use a routed NIC instead of connecting the instance to the lxdbr0 bridge.
+For simplicity we assign a static IP address to the container.
+
+```
+incus profile create routed_192.168.1.30
+EDITOR=vim incus profile edit routed
+```
+and insert the following is this profile:
+```
+    config:
+      user.network-config: |
+        version: 2
+        ethernets:
+            eth0:
+                addresses:
+                - 192.168.1.30/32
+                nameservers:
+                    addresses:
+                    - 8.8.8.8
+                    search: []
+                routes:
+                -   to: 0.0.0.0/0
+                    via: 169.254.0.1
+                    on-link: true
+    description: Default LXD profile
+    devices:
+      eth0:
+        ipv4.address: 192.168.1.30
+        nictype: routed
+        parent: end0 ***must match host if***
+        type: nic
+    name: routed
+    used_by: []
+```
+
+You have a course to adapt the above IP address to fit in your LAN; and use an IP-address outside the range of you DHCP-server.
+
+Now create and launch an arch linux container named `arch1`.
+```
+incus  launch images:archlinux arch1 -c security.privileged=true --profile default --profile routed_192.168.1.30
+```
+
+With the command `incus list` you can see what IP-address to assigned to container arch1.
+
+To start an interactive shell in the container `arch1`, use following command:
+```
+incus exec arch1 -- bash
+```
+
+Now can install packages etc, which are persistant after stopping the container.
+
+To stop the container:
+```
+incus stop arch1
+```
 

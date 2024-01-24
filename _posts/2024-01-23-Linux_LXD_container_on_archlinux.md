@@ -82,6 +82,13 @@ To start an interactive shell in the container `arch1`, use following command:
 ```
 incus exec arch1 -- bash
 ```
+Now check inside the container whether you have internet access.
+If you do not have internet access then go back to the host system, and try following command
+```
+nft flush ruleset
+```
+This fushes the rules of the firewall nft. The nft firewall is installed together with incus. Especially if you also use Docker on the host system, docker adds some rules to the nft firewall. If you have internet access in the container after flushing the nft firewall rules, you know where to search the cause of the problem. Most times is has to do with the FORWARD chain, where packets are not accepted.
+
 
 Now can install packages etc, which are persistant after stopping the container.
 

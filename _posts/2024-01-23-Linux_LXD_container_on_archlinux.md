@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Linux LXD/incus container on Arch Linux
+title: Linux LXD/incus container with webserver, external accessible
 ---
 
 # Introduction
@@ -35,7 +35,7 @@ Install and init incus.
 Now you get an amount of questions you have to answer. For most questions the default value is good.
 For the networking part, answer that you **do not need a bridge**.
 We use a routed NIC instead of connecting the instance to the lxdbr0 bridge.
-For simplicity we assign a static IP address to the container.
+For simplicity we assign a static IP address to the container. Because we can use an address that belongs to the LAN the host is on, the web server in the container will be easily accesble from outside.
 
 ```
 incus profile create routed_192.168.1.30
@@ -63,11 +63,13 @@ and insert the following is this profile:
       eth0:
         ipv4.address: 192.168.1.30
         nictype: routed
-        parent: end0 ***must match host if***
+        parent: end0
         type: nic
-    name: routed
+    name: routed_192.168.1.30
     used_by: []
 ```
+
+** NB: the parent above, must match the device name of the host **
 
 You have a course to adapt the above IP address to fit in your LAN; and use an IP-address outside the range of you DHCP-server.
 
@@ -76,7 +78,8 @@ Now create and launch an arch linux container named `arch1`.
 ```
 incus  launch images:archlinux arch1 -c security.privileged=true --profile default --profile routed_192.168.1.30
 ```
-
+This line first applies the default profile, and then the routed profile on top.
+security.privileged is necessary to make the container accessible from the outside.
 With the command `incus list` you can see what IP-address to assigned to container arch1.
 
 To start an interactive shell in the container `arch1`, use following command:
@@ -98,7 +101,13 @@ This fushes the rules of the firewall nft, and restarts incus. Especially if you
 The order of starting Incus, own fw and Docker can influence what fw-rules are active.
 
 
-Now can install packages etc, which are persistant after stopping the container.
+Now can install packages etc, which are persistant after stopping the container. So you can also easily install a webserver, like nginx.
+```
+incus exec arch1 -- bash
+# pacman -Suy
+# pacman -S nginx
+```
+Now you can configure a website in nginx, and add the file to /srv/http/
 
 To stop the container:
 ```

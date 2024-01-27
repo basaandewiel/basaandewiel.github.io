@@ -69,7 +69,7 @@ and insert the following is this profile:
     used_by: []
 ```
 
-** NB: the parent above, must match the device name of the host **
+**NB: the parent above, must match the device name of the host**
 
 You have a course to adapt the above IP address to fit in your LAN; and use an IP-address outside the range of you DHCP-server.
 

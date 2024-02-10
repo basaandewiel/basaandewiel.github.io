@@ -49,7 +49,10 @@ The host (RPI) I was using was running Arch linux, so the 'lxd' command in subst
 ```
 # set port forwaring for port 80 and 443 on your router to the RPI host, and use the same port number for the forwaring as was received (so 80->RPI:80 and 443->RPI:443).
 # instructions on how to do this are dependent on your router (for OpenWRT is under under Networking->firewall)
+```
 
+## Set up reverse proxy in linux container
+```
 # On the host RPI
 # launch container named proxy
 incus launch images:ubuntu/22.04 proxy
@@ -57,10 +60,58 @@ incus launch images:ubuntu/22.04 proxy
 # Add LXD proxy devices to redirect connections from the internet to ports 80 (HTTP) and 443 (HTTPS) on the server to the respective ports at the proxy container.
 incus  config device add proxy myport80 proxy listen=tcp:0.0.0.0:80 connect=tcp:127.0.0.1:80 proxy_protocol=true
 incus config device add proxy myport443 proxy listen=tcp:0.0.0.0:443 connect=tcp:127.0.0.1:443 proxy_protocol=true
-# note the IPv4 and IPv6 address of the proxy, that is shown via
+# note the IPv4 and IPv6 address of the proxy, you need them later; they are shown via
 incus list
 
-
+#Start a shell in the proxy container.
+incus exec proxy -- bash
+#Update the package list.
+apt update
+#Install NGINX in the container.
+apt install -y nginx
+#Logout from the container.
+logout
 ```
 
+## Create the Nextcloud linux container
+Download Nextcloudpi, special version of nextcloud for the raspberry pi, from `https://github.com/nextcloud/nextcloudpi/releases`. I used the LXD version form arm64 architecture.
 
+
+## Direct Traffic to the Nextcloud container from the Reverse Proxy
+Start a shell in the proxy container.
+```
+incus exec proxy -- bash
+```
+Create the file nextcloud.yourdomain.com in /etc/nginx/sites-available/ for the configuration of your first website.
+NB: replace nextcloud.yourdomain.com with the external url via wich nextcloud should be made available. I use a free domain from afraid.org, and created a subsub domain for my nextcloud.
+
+
+File: nextcloud.yourdomain.com
+```
+server {
+        listen 80 proxy_protocol;
+        listen [::]:80 proxy_protocol;
+
+        server_name nextcloud.yourdomain.com;
+
+        location / {
+                include /etc/nginx/proxy_params;
+
+                proxy_pass http://proxy;
+        }
+
+        real_ip_header proxy_protocol;
+        set_real_ip_from 127.0.0.1;
+}
+```
+
+Enable the website.
+```
+sudo ln -s /etc/nginx/sites-available/nextcloud.yourdomain.com /etc/nginx/sites-enabled/
+Restart the NGINX reverse proxy. By restarting the service, NGINX reads and applies the new site instructions just added to /etc/nginx/sites-enabled.
+
+```
+sudo systemctl reload nginx
+#Exit the proxy container and return back to the host.
+logout
+```

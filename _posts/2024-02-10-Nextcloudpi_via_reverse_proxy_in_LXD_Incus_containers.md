@@ -76,6 +76,11 @@ logout
 ## Create the Nextcloud linux container
 Download Nextcloudpi, special version of nextcloud for the raspberry pi, from `https://github.com/nextcloud/nextcloudpi/releases`. I used the LXD version form arm64 architecture.
 
+```
+wget https://github.com/nextcloud/nextcloudpi/releases/download/v1.53.1/NextcloudPi_LXD_arm64_v1.53.1.tar.gz
+incus image import NextcloudPi_LXD_arm64_v1.53.1.tar.gz --alias "nextcloudpi"
+incus launch "nextcloudpi" ncp
+```
 
 ## Direct Traffic to the Nextcloud container from the Reverse Proxy
 Start a shell in the proxy container.

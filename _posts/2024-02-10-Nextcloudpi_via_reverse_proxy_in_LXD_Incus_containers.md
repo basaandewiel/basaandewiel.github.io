@@ -46,6 +46,8 @@ And nextcloud had the setting of forcing https active. So the nextcloud containe
 # Instructions
 The host (RPI) I was using was running Arch linux, so the 'lxd' command in substituted by 'incus', but further there are no noticable (for me) differences between lxd and incus. For installing incus see my other post on this subject.
 
+
+## Set port forwarding in your router to the RPI
 ```
 # set port forwaring for port 80 and 443 on your router to the RPI host, and use the same port number for the forwaring as was received (so 80->RPI:80 and 443->RPI:443).
 # instructions on how to do this are dependent on your router (for OpenWRT is under under Networking->firewall)
@@ -74,13 +76,23 @@ logout
 ```
 
 ## Create the Nextcloud linux container
-Download Nextcloudpi, special version of nextcloud for the raspberry pi, from `https://github.com/nextcloud/nextcloudpi/releases`. I used the LXD version form arm64 architecture.
+Download Nextcloudpi, special version of nextcloud for the raspberry pi, from `https://github.com/nextcloud/nextcloudpi/releases`. I used the LXD version for arm64 architecture.
 
 ```
 wget https://github.com/nextcloud/nextcloudpi/releases/download/v1.53.1/NextcloudPi_LXD_arm64_v1.53.1.tar.gz
+# import image in incus, and call the image nextcloudpi
 incus image import NextcloudPi_LXD_arm64_v1.53.1.tar.gz --alias "nextcloudpi"
+# launch the container and call it ncp
 incus launch "nextcloudpi" ncp
 ```
+
+## Configure nextcloudpi
+To be able to access nextcloudpi, add the domain you use for nextcloudpi, to the list of trusted domains
+```
+vim /var/wwww/nextcloud/config/config.php
+# I have choosen a not yet used unique number in the array of trusted domains
+```
+In th same file also add the name of the proxy container 'proxy' to the list of trusted_proxies
 
 ## Direct Traffic to the Nextcloud container from the Reverse Proxy
 Start a shell in the proxy container.
@@ -120,3 +132,10 @@ sudo systemctl reload nginx
 #Exit the proxy container and return back to the host.
 logout
 ```
+
+## Debugging
+For debugging you have several options, some are:
+* check ports the system listens to `ss -tlpn`; 
+* to check whether the traffic arrives at the RPI from the router you can use for instance 'tcpdump'
+* check the status of services, for instance of nginx via `systemctl status nginx` 
+

@@ -51,3 +51,19 @@ When the interface receivesa packet, this happens:
 
 Wireguard uses the public key to uniquely identify and route a client. This means that **you can't have the same key on two clients that are simultaneously connected to the same server**.
 
+# Installing
+## OpenWRT
+* Navigate to LuCI-System-Software and install the packages
+  * luci-proto-wireguard
+  * qrencode (so openwrt can generate QRcode for client config)
+* 2. Generating keys @@@
+
+    Generate a key pair of private and public keys.
+        wg genkey | tee wg.key | wg pubkey > wg.pub
+            *
+            Use the wg.key file to configure the WireGuard interface on this router.
+            *
+            Use the wg.pub file to configure peers that will connect to this router through the WireGuard VPN.
+    staan in root
+
+

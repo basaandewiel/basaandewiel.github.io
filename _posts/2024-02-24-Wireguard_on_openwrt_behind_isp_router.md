@@ -109,7 +109,7 @@ I have done this on iphone (IOS 17.3) and Android (13).
       * covered networks: wireguard
       * allow forward to destination: LAN, WAN (so you can access via wg both your LAN and internet)
       * allow forward from source zones: unspecified
-      * Masquerading in only needed for WAN zone, not for LAN zone, as specified at some sites; I do not understand why it is not needed for LAN zone, but I can still access the LAN via wg.
+      * Masquerading in only needed for WAN zone, not for LAN zone, see also below.
 
 Now it is good to check whether the settings made via Luci, ended up correctly in the firewall and network settings files.
 So `cat /etc/config/network` the relevant part should look like this:
@@ -128,7 +128,7 @@ config wireguard_wireguard
         option endpoint_host 'your_publicIP_or name'
         option persistent_keepalive '25'
 ```
-If you want to add more peers, then each peer must have a unique IP-address; So the next peer could have address `10.0.0.03/32`.
+If you want to add more peers, then each peer must have a unique IP-address; So the next peer could have address `10.0.0.03/32`. After you added a new client following the above procedure, and assigning a unique IP-address, you have to restart the network `/etc/init.d/network restart`, then activate the connection at the client, and chec on openwrt via `wg` whether you see the newly added client.
 
 Note: /32 indicates exactly one IP-address (/24 indicates a range of 255 IP addresses)
 
@@ -177,9 +177,8 @@ Tcpdump shows that packets from `10.0.0.2` (IP address of the wg tunnel on my ph
 
 ```
 
-
-
 NB: you can also edit the /etc/config/firewall and network files directly, in stead of via Luci. But bear in mind to always restart the network and firewall (via `/etc/init.d/network restart` or `/etc/init.d/firewall restart`, or reboot openWRT router.
+
 
 # Testing an troubleshooting
 To test, first turn off wifi on you phone, so we know for sure that traffic is not floating via your wifi. Of course mobile data must be turned on.

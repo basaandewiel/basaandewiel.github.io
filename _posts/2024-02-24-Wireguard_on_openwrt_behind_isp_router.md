@@ -165,9 +165,9 @@ config forwarding
 
 ```
 ### Masquerading is not necessary on the LAN zone!
-Some site suggest that you should activate masquerading (NATting) on the LAN-zone. This seams not to be necessary, at least not in this configuration.
+Some sites suggest that you should activate masquerading (NATting) on the LAN-zone. This seams not to be necessary, at least not in this configuration.
 I can reach my raspberry pi on my lan, via wireguard no my phone (with wifi turned off), without masquerading on the LAN zone.
-Tcpdump shows that packets from `10.0.0.2` (IP address of the wg tunnel on my phone) on my raspberry pi5 (named rpi5) which has an IP address of `192.168.1.15`. And that my rpi5 is ending packets back to `10.0.0.2`. I assume that this is possible because openwrt/wg knows to find my rpi5, and rpi5 has openwrt as default gateway, and openwrt/wg knows how to find 10.0.0.2. See also the output of `tcpdump -vv -i end0 host 10.0.0.2` executen on my rpi5 below (end0 is the name of the ethernet interface of my rpi5).
+Tcpdump shows that packets from `10.0.0.2` (IP address of the wg tunnel on my phone) on my raspberry pi5 (named rpi5) which has an IP address of `192.168.1.15`. And that my rpi5 is ending packets back to `10.0.0.2`. I assume that this is possible because openwrt/wg knows to find my rpi5, and rpi5 has openwrt as default gateway, and openwrt/wg knows how to find 10.0.0.2. See also the output of `tcpdump -vv -i end0 host 10.0.0.2` executed on my rpi5 below (end0 is the name of the ethernet interface of my rpi5).
 
 ```
 20:04:56.166333 IP (tos 0x0, ttl 63, id 0, offset 0, flags [DF], proto TCP (6), length 64)

@@ -65,6 +65,40 @@ Wireguard uses the public key to uniquely identify and route a client. This mean
   * setting up network
     * To create a new WireGuard interface go to LuCI Network Interfaces Add new interface... and select WireGuard VPN from the Protocol dropdown menu.
     * select the keys generated in step2 above
-I did not gave any IP-addresses (recommended, but didn't no what to do)
+    * IP addresses: 10.0.0.1/32 (the IP address of the wireguard interface)
+    * monitoring status: either via luci-status-wireguard, or CLI `wg`. The wg command should give the wg interface, and all peers that have completed a succesfull handshake (exchange of private/public keys).
+
+## Client
+I have done this on iphone (IOS 17.3) and Android (13).
+* install the wireguard app
+* on openwrt 
+  * goto luci-interfaces-wireguard and select tab 'peers'.
+  * click on 'add peer' and fill in 
+    * name; 
+    * click 'generate new key pair', 
+    * for Allowed IPs fill in '10.0.0.2/32'; this is the IP address of the client
+    * Route Allowed IPs: yes.
+    * endpoint host: the url of your home, or the **external** IP address of your ISP router (if not known, google 'find my ip address'
+    * endpoint port: 51820 
+    * keepalive: 25
+    * now it should be possible to click on 'generate configuration' QR-code
+* on cient
+  * add @@@ and scan the QR code
+* on ISP modem
+    * ensure that port 51820 is forwarded to Openwrt, or put Openwrt in the DMZ of your ISP router
+* on openwrt
+  * luci-network-firewall, select tab traffic rules; add rule
+    * name: wireguard
+    * protocol: UDP (wg uses UDP)
+    * source zone: WAN (packets originate from outside world)
+    * source address: any IP (the IP of the client is not known)
+    * source port: any (also not known)
+    * destination zone: Device (input); the packet should be handled by wg on openwrt
+    * destination address: add IP (not filled in)
+    * destination port: 51820 (we use this default port for wg)
+    * action: accept
+
+
+
 
 

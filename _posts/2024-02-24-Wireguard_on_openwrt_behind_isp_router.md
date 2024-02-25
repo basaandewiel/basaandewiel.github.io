@@ -132,4 +132,18 @@ If you want to add more peers, then each peer must have a unique IP-address; So 
 
 Note: /32 indicates exactly one IP-address (/24 indicates a range of 255 IP addresses)
 
+# Testing an troubleshooting
+To test, first turn off wifi on you phone, so we know for sure that traffic is not floating via your wifi. Of course mobile data must be turned on.
+
+Activate the connection and try whether you can reach your LAN and internet sites.
+
+On the command prompt of your openwrt you can give the command `wg` to see whether handshaking is succesful or not. This is the first part that must be working. If this is not working double check the keys on openwrt and your phone.
+
+## Check whether traffic arrives at your openwrt
+When these are OK, we are first going to check whether traffic is arriving at openwrt from your phone.
+First chech on openwrt CLI, whehter port 51820 is listened to by `netstat -nulp`, this shoudl list at least port 51820. If wg is implemented as a kernel module, you do not see a PID/program name after 51820.
+
+Now we know that wireguard is listening to this UDP port, we check further. It does sound strange but we can use `tcpdump` to monitor also UDP packets. Use `tcpdump -i wan udp port 51820` and try to make a connection from your phone. Now you should see some packets arriving at the wan interface op openwrt. If not, then something is wrong with forwarding from your ISP router, of you client/phone is not working correctly.
+
+
 

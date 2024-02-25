@@ -132,6 +132,34 @@ If you want to add more peers, then each peer must have a unique IP-address; So 
 
 Note: /32 indicates exactly one IP-address (/24 indicates a range of 255 IP addresses)
 
+The relevant part of /etc/config/firewall should look like this:
+```
+config rule
+        option name 'wireguard'
+        option src 'wan'
+        option dest_port '51820'
+        option target 'ACCEPT'
+        list proto 'udp'
+
+config zone
+        option name 'wireguard'
+        option input 'ACCEPT'
+        option output 'ACCEPT'
+        option forward 'REJECT'
+        list network 'wireguard'
+
+config forwarding
+        option src 'wireguard'
+        option dest 'lan'
+
+config forwarding
+        option src 'wireguard'
+        option dest 'wan'
+
+```
+
+NB: you can also edit the /etc/config/firewall and network files directly, in stead of via Luci. But bear in mind to always restart the network and firewall (via `/etc/init.d/network restart` or `/etc/init.d/firewall restart`, or reboot openWRT router.
+
 # Testing an troubleshooting
 To test, first turn off wifi on you phone, so we know for sure that traffic is not floating via your wifi. Of course mobile data must be turned on.
 
@@ -145,5 +173,13 @@ First chech on openwrt CLI, whehter port 51820 is listened to by `netstat -nulp`
 
 Now we know that wireguard is listening to this UDP port, we check further. It does sound strange but we can use `tcpdump` to monitor also UDP packets. Use `tcpdump -i wan udp port 51820` and try to make a connection from your phone. Now you should see some packets arriving at the wan interface op openwrt. If not, then something is wrong with forwarding from your ISP router, of you client/phone is not working correctly.
 
+Let's first check if we generate UDP traffic on port 51820 ourselves, whether that UDP traffice arrives at the WAN interface of openwrt.
 
+Generate test UDP packets. Open a second ssh session to you openwrt, or any other linux box you have and give following command `nc -u <your public ip addr> 51820 < /dev/random`. `nc` stands for netcat and must be installed if not available. At the same time you give the following command in het openwrt shell `tcpdump -i wan udp port 51820` and you should see all kind of traffic being listed. If not then this UDP port is not probably not forwarded by your ISP router.
+If you get 'connection refused' then the packet is refused probably
+You can test this by generating traffic at UDP port 53 (used for DNS queries), this port must be forwarded to openwrt `nc -u <your public ip addr> 53 < /dev/random`.
 
+When everything is OK you should see with `tcpdump` traffic arriving at both the `wan` interface as well as at the `wireguard` interface.
+
+## firewall problems
+If the wg traffic is arriving at the wan interface, but you cannot access your LAN or internet sites, then double check your firewall settings.

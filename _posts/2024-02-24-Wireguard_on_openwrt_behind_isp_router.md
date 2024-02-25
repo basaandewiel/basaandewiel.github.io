@@ -83,7 +83,10 @@ I have done this on iphone (IOS 17.3) and Android (13).
     * keepalive: 25
     * now it should be possible to click on 'generate configuration' QR-code
 * on cient
-  * add @@@ and scan the QR code
+  * add new tunnel by clicking on '+' sign, and scan the QR code
+  * edit the new tunnel to check the settings
+    * set DNS to 9.9.9.9
+    * set endpoint to `<your public ip address>:51820`
 * on ISP modem
     * ensure that port 51820 is forwarded to Openwrt, or put Openwrt in the DMZ of your ISP router
 * on openwrt
@@ -97,8 +100,36 @@ I have done this on iphone (IOS 17.3) and Android (13).
     * destination address: add IP (not filled in)
     * destination port: 51820 (we use this default port for wg)
     * action: accept
+  * luci-network-firewall, tab 'general settings'
+    * add zone, call it 'wireguard'
+      * input: accept
+      * output: accept
+      * forward: reject
+      * masquerading: off
+      * covered networks: wireguard
+      * allow forward to destination: LAN, WAN (so you can access via wg both your LAN and internet)
+      * allow forward from source zones: unspecified
+      * Masquerading in only needed for WAN zone, not for LAN zone, as specified at some sites; I do not understand why it is not needed for LAN zone, but I can still access the LAN via wg.
 
+Now it is good to check whether the settings made via Luci, ended up correctly in the firewall and network settings files.
+So `cat /etc/config/network` the relevant part should look like this:
+```
+config interface 'wireguard'
+        option proto 'wireguard'
+        option private_key 'REDACTED'
+        option listen_port '51820'
+        list addresses '10.0.0.1/24'
 
+config wireguard_wireguard
+        option public_key 'REDACTED'
+        option description 'try1'
+        list allowed_ips '10.0.0.2/32'
+        option route_allowed_ips '1'
+        option endpoint_host 'your_publicIP_or name'
+        option persistent_keepalive '25'
+```
+If you want to add more peers, then each peer must have a unique IP-address; So the next peer could have address `10.0.0.03/32`.
 
+Note: /32 indicates exactly one IP-address (/24 indicates a range of 255 IP addresses)
 
 

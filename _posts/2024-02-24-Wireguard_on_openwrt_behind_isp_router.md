@@ -51,7 +51,7 @@ When the interface receivesa packet, this happens:
 
 Wireguard uses the public key to uniquely identify and route a client. This means that **you can't have the same key on two clients that are simultaneously connected to the same server**.
 
-# Installing
+# Installing and configuring
 ## OpenWRT
 * Navigate to LuCI-System-Software and install the packages
   * luci-proto-wireguard
@@ -134,6 +134,13 @@ Note: /32 indicates exactly one IP-address (/24 indicates a range of 255 IP addr
 
 The relevant part of /etc/config/firewall should look like this:
 ```
+config zone
+        option name 'lan'
+        option input 'ACCEPT'
+        option output 'ACCEPT'
+        option forward 'ACCEPT'
+        list network 'lan'
+
 config rule
         option name 'wireguard'
         option src 'wan'
@@ -157,6 +164,20 @@ config forwarding
         option dest 'wan'
 
 ```
+### Masquerading is not necessary on the LAN zone!
+Some site suggest that you should activate masquerading (NATting) on the LAN-zone. This seams not to be necessary, at least not in this configuration.
+I can reach my raspberry pi on my lan, via wireguard no my phone (with wifi turned off), without masquerading on the LAN zone.
+Tcpdump shows that packets from `10.0.0.2` (IP address of the wg tunnel on my phone) on my raspberry pi5 (named rpi5) which has an IP address of `192.168.1.15`. And that my rpi5 is ending packets back to `10.0.0.2`. I assume that this is possible because openwrt/wg knows to find my rpi5, and rpi5 has openwrt as default gateway, and openwrt/wg knows how to find 10.0.0.2. See also the output of `tcpdump -vv -i end0 host 10.0.0.2` executen on my rpi5 below (end0 is the name of the ethernet interface of my rpi5).
+
+```
+20:04:56.166333 IP (tos 0x0, ttl 63, id 0, offset 0, flags [DF], proto TCP (6), length 64)
+    **10.0.0.2.49267** > rpi5.ssh: Flags [S], cksum 0x6ef0 (correct), seq 1516598280, win 65535, options [mss 1220,nop,wscale 6,nop,nop,
+20:04:56.166388 IP (tos 0x0, ttl 64, id 0, offset 0, flags [DF], proto TCP (6), length 60)
+    rpi5.ssh > **10.0.0.2.49267**: Flags [S.], cksum 0xcbe7 (incorrect -> 0x57e8), seq 3583316629, ack 1516598281, win 31856, options [me 7], length 0
+
+```
+
+
 
 NB: you can also edit the /etc/config/firewall and network files directly, in stead of via Luci. But bear in mind to always restart the network and firewall (via `/etc/init.d/network restart` or `/etc/init.d/firewall restart`, or reboot openWRT router.
 

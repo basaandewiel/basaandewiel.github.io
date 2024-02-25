@@ -56,14 +56,15 @@ Wireguard uses the public key to uniquely identify and route a client. This mean
 * Navigate to LuCI-System-Software and install the packages
   * luci-proto-wireguard
   * qrencode (so openwrt can generate QRcode for client config)
-* 2. Generating keys @@@
-
-    Generate a key pair of private and public keys.
-        wg genkey | tee wg.key | wg pubkey > wg.pub
-            *
-            Use the wg.key file to configure the WireGuard interface on this router.
-            *
-            Use the wg.pub file to configure peers that will connect to this router through the WireGuard VPN.
-    staan in root
+* Generating keys 
+  * Generate a key pair of private and public keys.
+  * `wg genkey | tee wg.key | wg pubkey > wg.pub`
+  * Use the wg.key file to configure the WireGuard interface on this router.
+  * Use the wg.pub file to configure peers that will connect to this router through the WireGuard VPN.
+  * restart network (can be done via luci-system-startup-initscript-network-restart), but easiest is via CLI `/etc/init.d/network restart'
+  * setting up network
+    * To create a new WireGuard interface go to LuCI Network Interfaces Add new interface... and select WireGuard VPN from the Protocol dropdown menu.
+    * select the keys generated in step2 above
+I did not gave any IP-addresses (recommended, but didn't no what to do)
 
 

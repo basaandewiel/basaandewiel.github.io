@@ -58,7 +58,7 @@ ln -s /mnt/share/domoticz.db domoticz.db #create soft link to db on RPI
 ln -s /mnt/share/domoticz_backups backups #create soft link to backup directory used for hourly,daily,monthly backups by domoticz
 # of course /mnt/share/domoticz_backups mus be created first on RPI
 
-#NB: the option 'nolock' in the mount command is necessary, otherwise domoticz will crash every hour (see also below)
+#NB: the option 'nolock' now replaced by 'nobrl' in the mount command is necessary, otherwise domoticz will crash every hour (see also below)
 ```
 
 Now you need to create a config file for domoticz. Put this file in `/etc/config/domoticz`
@@ -218,7 +218,7 @@ For debugging Domoticz you can turn on logging (see above). The logging can be r
 ## Domoticz crashes when autobackupping to a network drive 
 Source used: https://github.com/domoticz/domoticz/issues/4180
 
-When the domoticz.db is on a CIFS mounted drive, as here is the case, the drive must be mounted with the "-o nolock" option. Otherwise Domoticz cannot lock the database when it wants to make a backup of the database, and then Domoticz crashes after 5 minutes of retrying.
+When the domoticz.db is on a CIFS mounted drive, as here is the case, the drive must be mounted with the "-o nolock" (now replaced by "-o nobrl") option. Otherwise Domoticz cannot lock the database when it wants to make a backup of the database, and then Domoticz crashes after 5 minutes of retrying.
 
 ## Known issues/things not working
 - mailing from domoticz (probably you have to install mail client on OpenWRT)

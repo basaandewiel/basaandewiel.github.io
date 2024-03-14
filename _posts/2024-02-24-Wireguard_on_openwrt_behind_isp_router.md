@@ -68,25 +68,6 @@ Wireguard uses the public key to uniquely identify and route a client. This mean
     * IP addresses: 10.0.0.1/32 (the IP address of the wireguard interface)
     * monitoring status: either via luci-status-wireguard, or CLI `wg`. The wg command should give the wg interface, and all peers that have completed a succesfull handshake (exchange of private/public keys).
 
-## Client
-I have done this on iphone (IOS 17.3) and Android (13).
-* install the wireguard app
-* on openwrt 
-  * goto luci-interfaces-wireguard and select tab 'peers'.
-  * click on 'add peer' and fill in 
-    * name; 
-    * click 'generate new key pair', 
-    * for Allowed IPs fill in '10.0.0.2/32'; this is the IP address of the client
-    * Route Allowed IPs: yes.
-    * endpoint host: the url of your home, or the **external** IP address of your ISP router (if not known, google 'find my ip address'
-    * endpoint port: 51820 
-    * keepalive: 25
-    * now it should be possible to click on 'generate configuration' QR-code
-* on cient
-  * add new tunnel by clicking on '+' sign, and scan the QR code
-  * edit the new tunnel to check the settings
-    * set DNS to 9.9.9.9
-    * set endpoint to `<your public ip address>:51820`
 * on ISP modem
     * ensure that port 51820 is forwarded to Openwrt, or put Openwrt in the DMZ of your ISP router
 * on openwrt
@@ -119,18 +100,7 @@ config interface 'wireguard'
         option private_key 'REDACTED'
         option listen_port '51820'
         list addresses '10.0.0.1/24'
-
-config wireguard_wireguard
-        option public_key 'REDACTED'
-        option description 'try1'
-        list allowed_ips '10.0.0.2/32'
-        option route_allowed_ips '1'
-        option endpoint_host 'your_publicIP_or name'
-        option persistent_keepalive '25'
 ```
-If you want to add more peers, then each peer must have a unique IP-address; So the next peer could have address `10.0.0.03/32`. After you added a new client following the above procedure, and assigning a unique IP-address, you have to restart the network `/etc/init.d/network restart`, then activate the connection at the client, and chec on openwrt via `wg` whether you see the newly added client.
-
-Note: /32 indicates exactly one IP-address (/24 indicates a range of 255 IP addresses)
 
 The relevant part of /etc/config/firewall should look like this:
 ```
@@ -164,6 +134,102 @@ config forwarding
         option dest 'wan'
 
 ```
+
+
+
+## Client on IOS and Android
+I have done this on iphone (IOS 17.3) and Android (13).
+* install the wireguard app
+* on openwrt 
+  * goto luci-interfaces-wireguard and select tab 'peers'.
+  * click on 'add peer' and fill in 
+    * name; 
+    * click 'generate new key pair', 
+    * for Allowed IPs fill in '10.0.0.2/32'; this is the IP address of the client
+    * Route Allowed IPs: yes.
+    * endpoint host: the url of your home, or the **external** IP address of your ISP router (if not known, google 'find my ip address'
+    * endpoint port: 51820 
+    * keepalive: 25
+    * now it should be possible to click on 'generate configuration' QR-code
+* on client
+  * add new tunnel by clicking on '+' sign, and scan the QR code
+  * edit the new tunnel to check the settings
+    * set DNS to 9.9.9.9
+    * set endpoint to `<your public ip address>:51820`
+
+If you want to add more peers, then each peer must have a unique IP-address; So the next peer could have address `10.0.0.03/32`. After you added a new client following the above procedure, and assigning a unique IP-address, you have to restart the network `/etc/init.d/network restart`, then activate the connection at the client, and check on openwrt via `wg` whether you see the newly added client.
+
+**NB: you MUST restart the network (for instructions see above) after adding a new peer (client), otherwise the peer will not get a handshake!**
+
+
+Note: /32 indicates exactly one IP-address (/24 indicates a range of 255 IP addresses)
+
+The relevant part of `/etc/config/network` should look like this:
+```
+config wireguard_wireguard
+        option public_key 'REDACTED'
+        option description 'try1'
+        list allowed_ips '10.0.0.2/32'
+        option route_allowed_ips '1'
+        option endpoint_host 'your_publicIP_or name'
+        option persistent_keepalive '25'
+```
+
+
+
+## Client on Linux
+I have done this on Linux Mint, based on Ubuntu 22.
+
+* on Linux
+  * install wireguard via `apt install wireguarda
+  * generate key pair @@@` 
+    * `wg genkey | tee private.key | wg pubkey > public.key`
+    * Use the pubic key to configure the WireGuard peer on this OpenWRT
+    * the private key is used below
+  * execute following
+```cat >/etc/wireguard/wg0.conf
+[Interface]
+PrivateKey = private key generated for this peer
+Address = 10.0.0.6/32
+[Peer]
+PublicKey = public key of your wireguard server on openwrt
+AllowedIPs = 10.0.0.6/32, 192.168.1.0/24
+Endpoint = <public IP address of your ISP modem>:51820
+```
+
+Address must be a unique IP address that will be assigned to this peer.
+AllowedIPs contain a list of IP addresses/ranges that must be able to transfer through the wt tunnel. So if you want to be able to reacht your LAN with 192.168.1.0/24, this must be part of the AllowedIPs.
+
+* on Linux client
+  * add new tunnel by clicking on '+' sign, and scan the QR code
+  * edit the new tunnel to check the settings
+    * set DNS to 9.9.9.9
+    * set endpoint to `<your public ip address>:51820`
+* on ISP modem
+    * ensure that port 51820 is forwarded to Openwrt, or put Openwrt in the DMZ of your ISP router
+* on openwrt
+  * luci-network-firewall, select tab traffic rules; add rule
+    * name: wireguard
+    * protocol: UDP (wg uses UDP)
+    * source zone: WAN (packets originate from outside world)
+    * source address: any IP (the IP of the client is not known)
+    * source port: any (also not known)
+    * destination zone: Device (input); the packet should be handled by wg on openwrt
+    * destination address: add IP (not filled in)
+    * destination port: 51820 (we use this default port for wg)
+    * action: accept
+  * luci-network-firewall, tab 'general settings'
+    * add zone, call it 'wireguard'
+      * input: accept
+      * output: accept
+      * forward: reject
+      * masquerading: off
+      * covered networks: wireguard
+      * allow forward to destination: LAN, WAN (so you can access via wg both your LAN and internet)
+      * allow forward from source zones: unspecified
+      * Masquerading in only needed for WAN zone, not for LAN zone, see also below.
+
+
 ### Masquerading is not necessary on the LAN zone!
 Some sites suggest that you should activate masquerading (NATting) on the LAN-zone. This seams not to be necessary, at least not in this configuration.
 I can reach my raspberry pi on my lan, via wireguard no my phone (with wifi turned off), without masquerading on the LAN zone.
@@ -181,11 +247,11 @@ NB: you can also edit the /etc/config/firewall and network files directly, in st
 
 
 # Testing an troubleshooting
-To test, first turn off wifi on you phone, so we know for sure that traffic is not floating via your wifi. Of course mobile data must be turned on.
+To test, first turn off wifi on your phone, so we know for sure that traffic is not floating via your local wifi. Of course mobile data must be turned on.
 
 Activate the connection and try whether you can reach your LAN and internet sites.
 
-On the command prompt of your openwrt you can give the command `wg` to see whether handshaking is succesful or not. This is the first part that must be working. If this is not working double check the keys on openwrt and your phone.
+On the command prompt of your openwrt you can give the command `wg` to see whether handshaking is succesful or not. This is the first part that must be working. If this is not working double check the keys on openwrt and your phone, and restart the network on Openwrt via `/etc/init.d/network restart`.
 
 ## Check whether traffic arrives at your openwrt
 When these are OK, we are first going to check whether traffic is arriving at openwrt from your phone.

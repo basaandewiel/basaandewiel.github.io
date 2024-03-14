@@ -205,7 +205,6 @@ I have done this on Linux Mint, based on Ubuntu 22.
     * the private key is used below
   * execute following
 ```cat <<EOF >/etc/wireguard/wg0.conf
-
 [Interface]
 PrivateKey = private key generated for this peer
 Address = 10.0.0.6/32

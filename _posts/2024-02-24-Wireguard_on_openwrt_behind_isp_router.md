@@ -5,18 +5,18 @@ title: Wireguard VPN on openWRT router behind ISP router
 Used sources
 * https://forum.openwrt.org/t/wireguard-server-on-openwrt-router-behind-isp-router-firewall-config/189027/20
 * https://openwrt.org/docs/guide-user/services/vpn/wireguard/basics
-
+* My own experience to get this working :)
 
 # Goal and introduction
 If I am away form home, for instance on holiday, I want to have access to my LAN, including all equipment attached to the LAN.
-I was using Openvpn on openWRT for that. That was working.
-But after upgrading openwrt I lost the configuration of openvpn, and I knew it was a big hassle to get it working again.
+I was using OpenVPN on OpenWRT for that. That was working.
+But after upgrading OpenWRt I lost the configuration of OpenVPN, and I knew it was a big hassle to get it working again.
 
-I read somewhere that *wireguard* should be better and simpler. So I decided to give wireguard a try.
+I read somewhere that *Wireguard* should be better and simpler. So I decided to give Wireguard a try.
 
 The configuraion appeared to be not that simple, at least not if you are not a network expert.
 
-I tried for several days to get it working myself, but get stuck. So finally I asked for help in the openwrt forum. And there are a lot of experts willing to help, and I got in working within one day.
+I tried for several days to get it working myself, but get stuck. So finally I asked for help in the OpenWRT forum. And there are a lot of experts willing to help, and I got in working within one day.
 This post describes what I have done. I hope it will be helpfull for others.
 
 
@@ -28,9 +28,10 @@ Configuration
 * ISP router
   * 192.168.2.254
 
-* openwrt router
+* OpenWRT router
   * 192.168.2.253 (WAN interface)
   * 192.168.1.1 (internally)
+  * 192.168.1.0/24 LAN network
 
 
 # How wireguard works
@@ -61,24 +62,24 @@ Wireguard uses the public key to uniquely identify and route a client. This mean
   * `wg genkey | tee wg.key | wg pubkey > wg.pub`
   * Use the wg.key file to configure the WireGuard interface on this router.
   * Use the wg.pub file to configure peers that will connect to this router through the WireGuard VPN.
-  * restart network (can be done via luci-system-startup-initscript-network-restart), but easiest is via CLI `/etc/init.d/network restart'
-  * setting up network
+  * Restart network (can be done via luci-system-startup-initscript-network-restart), but easiest is via CLI `/etc/init.d/network restart'
+  * Setting up network
     * To create a new WireGuard interface go to LuCI Network Interfaces Add new interface... and select WireGuard VPN from the Protocol dropdown menu.
     * select the keys generated in step2 above
     * IP addresses: 10.0.0.1/32 (the IP address of the wireguard interface)
-    * monitoring status: either via luci-status-wireguard, or CLI `wg`. The wg command should give the wg interface, and all peers that have completed a succesfull handshake (exchange of private/public keys).
+    * Monitoring status: either via luci-status-wireguard, or CLI `wg`. The wg command should give the wg interface, and all peers that have completed a succesfull handshake (exchange of private/public keys).
 
-* on ISP modem
-    * ensure that port 51820 is forwarded to Openwrt, or put Openwrt in the DMZ of your ISP router
-* on openwrt
+* On ISP modem
+    * Ensure that port 51820 (the default port used by Wireguard) is forwarded to OpenWRT, or put Openwrt in the DMZ of your ISP router
+* On openwrt
   * luci-network-firewall, select tab traffic rules; add rule
     * name: wireguard
     * protocol: UDP (wg uses UDP)
     * source zone: WAN (packets originate from outside world)
     * source address: any IP (the IP of the client is not known)
     * source port: any (also not known)
-    * destination zone: Device (input); the packet should be handled by wg on openwrt
-    * destination address: add IP (not filled in)
+    * destination zone: Device (input); the packet should be handled by wg on OpenWRT
+    * destination address: (leave empty)
     * destination port: 51820 (we use this default port for wg)
     * action: accept
   * luci-network-firewall, tab 'general settings'
@@ -139,26 +140,26 @@ config forwarding
 
 ## Client on IOS and Android
 I have done this on iphone (IOS 17.3) and Android (13).
-* install the wireguard app
-* on openwrt 
+* Install the Wireguard app
+* On OpenWRT
   * goto luci-interfaces-wireguard and select tab 'peers'.
   * click on 'add peer' and fill in 
     * name; 
     * click 'generate new key pair', 
-    * for Allowed IPs fill in '10.0.0.2/32'; this is the IP address of the client; **do not fill in here the IP-range of the subnet that you want to be able to reach from remote location; this address range need only be filled in on the client config (see below)**
+    * for Allowed IPs fill in '10.0.0.2/32'; this is the IP address of the client; **do not fill in here the IP-range of the subnet that you want to be able to reach from remote location; this address range needs only be filled in on the client config (see below)**
     * Route Allowed IPs: yes.
-    * endpoint host: the url of your home, or the **external** IP address of your ISP router (if not known, google 'find my ip address'
+    * endpoint host: the url of your home, or the **external** IP address of your ISP router (if not known, google 'what is my ip address'
     * endpoint port: 51820 
-    * keepalive: 25
+    * keepalive: 25 (not necessary)
     * now it should be possible to click on 'generate configuration' QR-code
-* on client
+* On client
   * add new tunnel by clicking on '+' sign, and scan the QR code
   * edit the new tunnel to check the settings
     * set DNS to 9.9.9.9
     * set AllowedIPs to 192.168.1.0/24 #the address range of the subnet that should be reachable via wg. If you want all traffic to be routed via wg, the fill in `0.0.0.0/0`  for IPv4.
-    * set endpoint to `<your public ip address>:51820`
+    * set endpoint to `<your public ip address, or name>:51820`
 
-If you want to add more peers, then each peer must have a unique IP-address; So the next peer could have address `10.0.0.03/32`. After you added a new client following the above procedure, and assigning a unique IP-address, you have to restart the network `/etc/init.d/network restart`, then activate the connection at the client, and check on openwrt via `wg` whether you see the newly added client.
+If you want to add more peers, then each peer must have a unique IP-address; So the next peer could have address `10.0.0.03/32`. After you added a new client following the above procedure, and assigning a unique IP-address, you **have to restart the network** `/etc/init.d/network restart`, then activate the connection at the client, and check on openwrt via `wg` whether you see the newly added client.
 
 **NB: you MUST restart the network (for instructions see above) after adding a new peer (client), otherwise the peer will not get a handshake!**
 

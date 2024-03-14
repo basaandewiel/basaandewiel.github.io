@@ -136,6 +136,21 @@ config forwarding
 
 ```
 
+### Masquerading is not necessary on the LAN zone!
+Some sites suggest that you should activate masquerading (NATting) on the LAN-zone. This seams not to be necessary, at least not in this configuration.
+I can reach my raspberry pi on my lan, via wireguard no my phone (with wifi turned off), without masquerading on the LAN zone.
+Tcpdump shows that packets from `10.0.0.2` (IP address of the wg tunnel on my phone) on my raspberry pi5 (named rpi5) which has an IP address of `192.168.1.15`. And that my rpi5 is ending packets back to `10.0.0.2`. I assume that this is possible because openwrt/wg knows to find my rpi5, and rpi5 has openwrt as default gateway, and openwrt/wg knows how to find 10.0.0.2. See also the output of `tcpdump -vv -i end0 host 10.0.0.2` executed on my rpi5 below (end0 is the name of the ethernet interface of my rpi5).
+
+```
+20:04:56.166333 IP (tos 0x0, ttl 63, id 0, offset 0, flags [DF], proto TCP (6), length 64)
+    **10.0.0.2.49267** > rpi5.ssh: Flags [S], cksum 0x6ef0 (correct), seq 1516598280, win 65535, options [mss 1220,nop,wscale 6,nop,nop,
+20:04:56.166388 IP (tos 0x0, ttl 64, id 0, offset 0, flags [DF], proto TCP (6), length 60)
+    rpi5.ssh > **10.0.0.2.49267**: Flags [S.], cksum 0xcbe7 (incorrect -> 0x57e8), seq 3583316629, ack 1516598281, win 31856, options [me 7], length 0
+
+```
+
+NB: you can also edit the /etc/config/firewall and network files directly, in stead of via Luci. But bear in mind to always restart the network and firewall (via `/etc/init.d/network restart` or `/etc/init.d/firewall restart`, or reboot openWRT router.
+
 
 
 ## Client on IOS and Android
@@ -190,6 +205,7 @@ I have done this on Linux Mint, based on Ubuntu 22.
     * the private key is used below
   * execute following
 ```cat <<EOF >/etc/wireguard/wg0.conf
+
 [Interface]
 PrivateKey = private key generated for this peer
 Address = 10.0.0.6/32
@@ -232,22 +248,26 @@ AllowedIPs contain a list of IP addresses/ranges that must be able to transfer t
       * allow forward from source zones: unspecified
       * Masquerading in only needed for WAN zone, not for LAN zone, see also below.
 
-
-### Masquerading is not necessary on the LAN zone!
-Some sites suggest that you should activate masquerading (NATting) on the LAN-zone. This seams not to be necessary, at least not in this configuration.
-I can reach my raspberry pi on my lan, via wireguard no my phone (with wifi turned off), without masquerading on the LAN zone.
-Tcpdump shows that packets from `10.0.0.2` (IP address of the wg tunnel on my phone) on my raspberry pi5 (named rpi5) which has an IP address of `192.168.1.15`. And that my rpi5 is ending packets back to `10.0.0.2`. I assume that this is possible because openwrt/wg knows to find my rpi5, and rpi5 has openwrt as default gateway, and openwrt/wg knows how to find 10.0.0.2. See also the output of `tcpdump -vv -i end0 host 10.0.0.2` executed on my rpi5 below (end0 is the name of the ethernet interface of my rpi5).
-
+Now `/etc/wireguard/wg0.conf` on your linux client should look like this:
 ```
-20:04:56.166333 IP (tos 0x0, ttl 63, id 0, offset 0, flags [DF], proto TCP (6), length 64)
-    **10.0.0.2.49267** > rpi5.ssh: Flags [S], cksum 0x6ef0 (correct), seq 1516598280, win 65535, options [mss 1220,nop,wscale 6,nop,nop,
-20:04:56.166388 IP (tos 0x0, ttl 64, id 0, offset 0, flags [DF], proto TCP (6), length 60)
-    rpi5.ssh > **10.0.0.2.49267**: Flags [S.], cksum 0xcbe7 (incorrect -> 0x57e8), seq 3583316629, ack 1516598281, win 31856, options [me 7], length 0
-
+[Interface]
+PrivateKey = REDACTED
+Address = 10.0.0.6/32
+[Peer]
+PublicKey = REDACTED
+AllowedIPs = 192.168.1.0/24
+Endpoint = <your public IP>:51820
 ```
 
-NB: you can also edit the /etc/config/firewall and network files directly, in stead of via Luci. But bear in mind to always restart the network and firewall (via `/etc/init.d/network restart` or `/etc/init.d/firewall restart`, or reboot openWRT router.
+Now you can activat wg via `wg-quick up wg0` 
+This command also adds some routing rules. These can be viewed via 'ip route'.
+To check the status of wg issue command `wg`. This should specify among others the time of the latest handshake.
 
+
+**NB: If you want to direct all trafic through the wg tunnel, by specifyin `Address = 0.0.0.0/0` then the 'wg-quick up wg0` command will use Policy Based Routing in linux and creates a new routing table. It also adds a routing rule then specifies a higher priority for this table than the main table has. This can be viewed via `ip rule`.
+
+## Client on Windows
+@@@
 
 # Testing an troubleshooting
 To test, first turn off wifi on your phone, so we know for sure that traffic is not floating via your local wifi. Of course mobile data must be turned on.

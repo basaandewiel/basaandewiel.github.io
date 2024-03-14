@@ -264,7 +264,7 @@ This command also adds some routing rules. These can be viewed via 'ip route'.
 To check the status of wg issue command `wg`. This should specify among others the time of the latest handshake.
 
 
-**NB: If you want to direct all trafic through the wg tunnel, by specifyin `Address = 0.0.0.0/0` then the 'wg-quick up wg0` command will use Policy Based Routing in linux and creates a new routing table. It also adds a routing rule then specifies a higher priority for this table than the main table has. This can be viewed via `ip rule`.
+**NB: If you want to direct all trafic through the wg tunnel, by specifyin `Address = 0.0.0.0/0` then the `wg-quick up wg0` command will use Policy Based Routing in linux and creates a new routing table. It also adds a routing rule then specifies a higher priority for this table than the main table has. This can be viewed via `ip rule`.
 
 ## Client on Windows
 I have tested this on Windows 11.

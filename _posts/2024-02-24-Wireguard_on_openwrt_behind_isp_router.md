@@ -181,8 +181,8 @@ config wireguard_wireguard
 I have done this on Linux Mint, based on Ubuntu 22.
 
 * on Linux
-  * install wireguard via `apt install wireguarda
-  * generate key pair @@@` 
+  * install wireguard via `apt install wireguard`
+  * generate key pair
     * `wg genkey | tee private.key | wg pubkey > public.key`
     * Use the pubic key to configure the WireGuard peer on this OpenWRT
     * the private key is used below

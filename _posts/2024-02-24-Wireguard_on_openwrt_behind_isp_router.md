@@ -145,7 +145,7 @@ I have done this on iphone (IOS 17.3) and Android (13).
   * click on 'add peer' and fill in 
     * name; 
     * click 'generate new key pair', 
-    * for Allowed IPs fill in '10.0.0.2/32'; this is the IP address of the client
+    * for Allowed IPs fill in '10.0.0.2/32'; this is the IP address of the client; **do not fill in here the IP-range of the subnet that you want to be able to reach from remote location; this address range need only be filled in on the client config (see below)**
     * Route Allowed IPs: yes.
     * endpoint host: the url of your home, or the **external** IP address of your ISP router (if not known, google 'find my ip address'
     * endpoint port: 51820 
@@ -155,6 +155,7 @@ I have done this on iphone (IOS 17.3) and Android (13).
   * add new tunnel by clicking on '+' sign, and scan the QR code
   * edit the new tunnel to check the settings
     * set DNS to 9.9.9.9
+    * set AllowedIPs to 192.168.1.0/24 #the address range of the subnet that should be reachable via wg. If you want all traffic to be routed via wg, the fill in `0.0.0.0/0`  for IPv4.
     * set endpoint to `<your public ip address>:51820`
 
 If you want to add more peers, then each peer must have a unique IP-address; So the next peer could have address `10.0.0.03/32`. After you added a new client following the above procedure, and assigning a unique IP-address, you have to restart the network `/etc/init.d/network restart`, then activate the connection at the client, and check on openwrt via `wg` whether you see the newly added client.
@@ -184,7 +185,7 @@ I have done this on Linux Mint, based on Ubuntu 22.
   * install wireguard via `apt install wireguard`
   * generate key pair
     * `wg genkey | tee private.key | wg pubkey > public.key`
-    * Use the pubic key to configure the WireGuard peer on this OpenWRT
+    * Use the pubic key to configure the WireGuard peer on OpenWRT (see instructions above for adding IOS or Android peer)
     * the private key is used below
   * execute following
 ```cat <<EOF >/etc/wireguard/wg0.conf
@@ -193,7 +194,7 @@ PrivateKey = private key generated for this peer
 Address = 10.0.0.6/32
 [Peer]
 PublicKey = public key of your wireguard server on openwrt
-AllowedIPs = 10.0.0.6/32, 192.168.1.0/24
+AllowedIPs = 192.168.1.0/24
 Endpoint = <public IP address of your ISP modem>:51820
 EOF
 ```

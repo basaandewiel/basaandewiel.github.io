@@ -187,7 +187,7 @@ I have done this on Linux Mint, based on Ubuntu 22.
     * Use the pubic key to configure the WireGuard peer on this OpenWRT
     * the private key is used below
   * execute following
-```cat >/etc/wireguard/wg0.conf
+```cat <<EOF >/etc/wireguard/wg0.conf
 [Interface]
 PrivateKey = private key generated for this peer
 Address = 10.0.0.6/32
@@ -195,6 +195,7 @@ Address = 10.0.0.6/32
 PublicKey = public key of your wireguard server on openwrt
 AllowedIPs = 10.0.0.6/32, 192.168.1.0/24
 Endpoint = <public IP address of your ISP modem>:51820
+EOF
 ```
 
 Address must be a unique IP address that will be assigned to this peer.

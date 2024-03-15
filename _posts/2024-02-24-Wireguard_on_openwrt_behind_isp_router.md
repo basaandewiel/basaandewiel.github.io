@@ -272,6 +272,7 @@ I have tested this on Windows 11.
 * Open WireGuard client and click **Add Tunnel ->Add empty tunnel**
   * The WireGuard Windows client automatically creates a public and a private key, displaying them on the screen.
 * Edit the configuration so that it looks like following
+
 ```
 [Interface]
 PrivateKey = REDACTED
@@ -282,7 +283,6 @@ DNS = 9.9.9.9
 PublicKey = REDACTED
 AllowedIPs = 192.168.1.0/24
 Endpoint = <your public IP, or name>:51820
-
 ```
 Address should hold the IP address that will be assigned to this end of the wg tunnel (and must be unique among all peers).
 The public key is the public key of the wg server on OpenWRT.

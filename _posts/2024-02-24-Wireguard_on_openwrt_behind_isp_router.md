@@ -66,7 +66,7 @@ Wireguard uses the public key to uniquely identify and route a client. This mean
   * `wg genkey | tee wg.key | wg pubkey > wg.pub`
   * Use the wg.key file to configure the WireGuard interface on this router.
   * Use the wg.pub file to configure peers that will connect to this router through the WireGuard VPN.
-  * Restart network (can be done via luci-system-startup-initscript-network-restart), but easiest is via CLI `/etc/init.d/network restart'
+  * Restart network (can be done via luci-system-startup-initscript-network-restart), but easiest is via CLI `/etc/init.d/network restart`
   * Setting up network
     * To create a new WireGuard interface go to LuCI Network Interfaces Add new interface... and select WireGuard VPN from the Protocol dropdown menu.
     * select the keys generated in step2 above
@@ -75,7 +75,7 @@ Wireguard uses the public key to uniquely identify and route a client. This mean
 
 * On ISP modem
     * Ensure that port 51820 (the default port used by Wireguard) is forwarded to OpenWRT, or put Openwrt in the DMZ of your ISP router
-* On openwrt
+* On OpenWRT
   * luci-network-firewall, select tab traffic rules; add rule
     * name: wireguard
     * protocol: UDP (wg uses UDP)
@@ -143,7 +143,7 @@ config forwarding
 ### Masquerading is not necessary on the LAN zone!
 Some sites suggest that you should activate masquerading (NATting) on the LAN-zone. This seams not to be necessary, at least not in this configuration.
 I can reach my raspberry pi on my lan, via wireguard no my phone (with wifi turned off), without masquerading on the LAN zone.
-Tcpdump shows that packets from `10.0.0.2` (IP address of the wg tunnel on my phone) on my raspberry pi5 (named rpi5) which has an IP address of `192.168.1.15`. And that my rpi5 is ending packets back to `10.0.0.2`. I assume that this is possible because openwrt/wg knows to find my rpi5, and rpi5 has openwrt as default gateway, and openwrt/wg knows how to find 10.0.0.2. See also the output of `tcpdump -vv -i end0 host 10.0.0.2` executed on my rpi5 below (end0 is the name of the ethernet interface of my rpi5).
+Tcpdump shows that packets from `10.0.0.2` (IP address of the wg tunnel on my phone) on my raspberry pi5 (named rpi5) which has an IP address of `192.168.1.15`. And that my rpi5 is sending packets back to `10.0.0.2`. I assume that this is possible because openwrt/wg knows to find my rpi5, and rpi5 has openwrt as default gateway, and openwrt/wg knows how to find 10.0.0.2. See also the output of `tcpdump -vv -i end0 host 10.0.0.2` executed on my rpi5 below (end0 is the name of the ethernet interface of my rpi5).
 
 ```
 20:04:56.166333 IP (tos 0x0, ttl 63, id 0, offset 0, flags [DF], proto TCP (6), length 64)
@@ -153,7 +153,7 @@ Tcpdump shows that packets from `10.0.0.2` (IP address of the wg tunnel on my ph
 
 ```
 
-NB: you can also edit the /etc/config/firewall and network files directly, in stead of via Luci. But bear in mind to always restart the network and firewall (via `/etc/init.d/network restart` or `/etc/init.d/firewall restart`, or reboot openWRT router.
+NB: you can also edit the /etc/config/firewall and network files directly, in stead of via Luci. But bear in mind to always restart the network and firewall (via `/etc/init.d/network restart` or `/etc/init.d/firewall restart`, or reboot OpenWRT router.
 
 
 
@@ -178,7 +178,7 @@ I have done this on iphone (IOS 17.3) and Android (13).
     * set AllowedIPs to 192.168.1.0/24 #the address range of the subnet that should be reachable via wg. If you want all traffic to be routed via wg, the fill in `0.0.0.0/0`  for IPv4.
     * set endpoint to `your public ip address, or name>:51820`
 
-If you want to add more peers, then each peer must have a unique IP-address; So the next peer could have address `10.0.0.03/32`. After you added a new client following the above procedure, and assigning a unique IP-address, you **have to restart the network** `/etc/init.d/network restart`, then activate the connection at the client, and check on openwrt via `wg` whether you see the newly added client.
+If you want to add more peers, then each peer must have a unique IP-address; So the next peer could have address `10.0.0.03/32`. After you added a new client following the above procedure, and assigning a unique IP-address, you **have to restart the network** `/etc/init.d/network restart`, then activate the connection at the client, and check on OpenWRT via `wg` whether you see the newly added client.
 
 **NB: you MUST restart the network (for instructions see above) after adding a new peer (client), otherwise the peer will not get a handshake!**
 
@@ -252,7 +252,7 @@ default via 10.0.0.138 dev wlo1 proto dhcp metric 600
 192.168.1.0/24 dev wg0 scope link 
 ```
 
-* 10.0.0.138 is the default router in my remote (holiday) loction. NB: the subnet of my remote LAN is the same as the subnet used for IP numbers by wg. As long as there are no overlapping IP numbers this does not seem to be a problem.
+* 10.0.0.138 is the default router in my remote (holiday) location. NB: the subnet of my remote LAN is the same as the subnet used for IP numbers by wg. As long as there are no overlapping IP numbers this does not seem to be a problem.
 * wlo1 is the name of the wireless interface of my Linux laptop
 * the line with docker in it, is because I have docker installed on my linux laptop, so is possibly not present in your situation
 * the last line is added by `wg-quick up wg0` and instructs that the IP range 192.168.1.0/24 must be routed via the wg0 device (that is also created by bringing wg up). This means that all other traffic is routed to the default gateway as specified in the first route.

@@ -25,15 +25,18 @@ This post describes what I have done. I hope it will be helpfull for others.
 Equipment used
 * OpenWrt 23.05.0 on Linksys WRT3200ACM
 
-Configuration
+Configuration at home
 * ISP router
   * 192.168.2.254
 
-* OpenWRT router
+* OpenWRT router at home
   * 192.168.2.253 (WAN interface)
   * 192.168.1.1 (internally)
   * 192.168.1.0/24 LAN network
 
+* Remote location (holiday)
+  * ISP router
+    * 10.0.0.138
 
 # How wireguard works
 WireGuard securely encapsulates IP packets **over UDP**. You add a **WireGuard interface**, configure it with **your private key and your peers' public keys**, and then you send packets across it. All issues of key distribution and pushed configurations are out of scope of WireGuard; these are issues much better left for other layers, lest we end up with the bloat of IKE or OpenVPN. In contrast, it more mimics the model of SSH and Mosh; *both parties have each other's public keys, and then they're simply able to begin exchanging packets through the interface.**
@@ -204,8 +207,9 @@ I have done this on Linux Mint, based on Ubuntu 22.
     * `wg genkey | tee private.key | wg pubkey > public.key`
     * Use the pubic key to configure the WireGuard peer on OpenWRT (see instructions above for adding IOS or Android peer)
     * the private key is used below
-  * execute following
-```cat <<EOF >/etc/wireguard/wg0.conf
+  * edit /etc/wireguard/wg0.conf so that it looks like following:
+
+```
 [Interface]
 PrivateKey = private key generated for this peer
 Address = 10.0.0.6/32
@@ -213,58 +217,51 @@ Address = 10.0.0.6/32
 PublicKey = public key of your wireguard server on openwrt
 AllowedIPs = 192.168.1.0/24
 Endpoint = <public IP address of your ISP modem>:51820
-EOF
 ```
 
 Address must be a unique IP address that will be assigned to this peer.
-AllowedIPs contain a list of IP addresses/ranges that must be able to transfer through the wt tunnel. So if you want to be able to reacht your LAN with 192.168.1.0/24, this must be part of the AllowedIPs.
+AllowedIPs contain a list of IP addresses/ranges that must be able to transfer through the wg tunnel. So if you want to be able to reacht your LAN with 192.168.1.0/24, this must be part of the AllowedIPs.
 
-* on Linux client
-  * add new tunnel by clicking on '+' sign, and scan the QR code
-  * edit the new tunnel to check the settings
-    * set DNS to 9.9.9.9
-    * set endpoint to `your public ip address>:51820`
-* on ISP modem
-    * ensure that port 51820 is forwarded to Openwrt, or put Openwrt in the DMZ of your ISP router
-* on openwrt
-  * luci-network-firewall, select tab traffic rules; add rule
-    * name: wireguard
-    * protocol: UDP (wg uses UDP)
-    * source zone: WAN (packets originate from outside world)
-    * source address: any IP (the IP of the client is not known)
-    * source port: any (also not known)
-    * destination zone: Device (input); the packet should be handled by wg on openwrt
-    * destination address: add IP (not filled in)
-    * destination port: 51820 (we use this default port for wg)
-    * action: accept
-  * luci-network-firewall, tab 'general settings'
-    * add zone, call it 'wireguard'
-      * input: accept
-      * output: accept
-      * forward: reject
-      * masquerading: off
-      * covered networks: wireguard
-      * allow forward to destination: LAN, WAN (so you can access via wg both your LAN and internet)
-      * allow forward from source zones: unspecified
-      * Masquerading in only needed for WAN zone, not for LAN zone, see also below.
 
-Now `/etc/wireguard/wg0.conf` on your linux client should look like this:
+On the other side of the tunnel, on OpenWRT, select `Interfaces-Wireguard-peers` and add a new peer:
+* public key: the public key generated above via `wg genkey` 
+* allowed IPs: 10.0.0.6/32 (the IP of the peer)
+* Routed allowed IPs: yes
+* Endpoint: `your pulic IP`
+
+Now you can activat wg via `wg-quick up wg0`. You get following output:
 ```
-[Interface]
-PrivateKey = REDACTED
-Address = 10.0.0.6/32
-[Peer]
-PublicKey = REDACTED
-AllowedIPs = 192.168.1.0/24
-Endpoint = <your public IP>:51820
+[#] ip link add wg0 type wireguard
+[#] wg setconf wg0 /dev/fd/63
+[#] ip -4 address add 10.0.0.6/32 dev wg0
+[#] ip link set mtu 1420 up dev wg0
+[#] ip -4 route add 192.168.1.0/24 dev wg0
+```
+* First line adds the wg0 device
+* The third line assigns the IP address to the wg0 device
+* Last line routes the subnet through dev wg0
+
+
+The current routes can be viewed via `ip route`.
+In this specific situation the output of `ip route` will be:
+```
+default via 10.0.0.138 dev wlo1 proto dhcp metric 600 
+10.0.0.0/24 dev wlo1 proto kernel scope link src 10.0.0.94 metric 600 
+169.254.0.0/16 dev wlo1 scope link metric 1000 
+172.17.0.0/16 dev docker0 proto kernel scope link src 172.17.0.1 linkdown 
+192.168.1.0/24 dev wg0 scope link 
 ```
 
-Now you can activat wg via `wg-quick up wg0` 
-This command also adds some routing rules. These can be viewed via 'ip route'.
+* 10.0.0.138 is the default router in my remote (holiday) loction. NB: the subnet of my remote LAN is the same as the subnet used for IP numbers by wg. As long as there are no overlapping IP numbers this does not seem to be a problem.
+* wlo1 is the name of the wireless interface of my Linux laptop
+* the line with docker in it, is because I have docker installed on my linux laptop, so is possibly not present in your situation
+* the last line is added by `wg-quick up wg0` and instructs that the IP range 192.168.1.0/24 must be routed via the wg0 device (that is also created by bringing wg up). This means that all other traffic is routed to the default gateway as specified in the first route.
+
+
 To check the status of wg issue command `wg`. This should specify among others the time of the latest handshake.
 
 
-**NB: If you want to direct all trafic through the wg tunnel, by specifyin `Address = 0.0.0.0/0` then the `wg-quick up wg0` command will use Policy Based Routing in linux and creates a new routing table. It also adds a routing rule then specifies a higher priority for this table than the main table has. This can be viewed via `ip rule`.
+**NB: If you want to direct all trafic through the wg tunnel, you can do this by specifying `AllowedIPs = 0.0.0.0/0`. In this case the `wg-quick up wg0` command will use Policy Based Routing in linux and creates a new routing table. It also adds a routing rule then specifies a higher priority for this table than the main table has. This can be viewed via `ip rule`.
 
 ## Client on Windows
 I have tested this on Windows 11.
@@ -284,18 +281,20 @@ PublicKey = REDACTED
 AllowedIPs = 192.168.1.0/24
 Endpoint = <your public IP, or name>:51820
 ```
-Address should hold the IP address that will be assigned to this end of the wg tunnel (and must be unique among all peers).
-The public key is the public key of the wg server on OpenWRT.
-AllowedIPs holds the subnet we want to be able to access from this peer. In my case the subnet of the LAN behind my OpenWRT router.
+* PrivateKey is the key generated by the Windows Wireguard app
+* Address should hold the IP address that will be assigned to this end of the wg tunnel (and must be unique among all peers).
+* The public key is the public key of the wg server on OpenWRT.
+* AllowedIPs holds the subnet we want to be able to access from this peer. In my case the subnet of the LAN behind my OpenWRT router.
+* Endpoint: the public IP address of your ISP router
 
-To activate the tunnel click `activate`. You should see that bytes are sent AND received. Otherwise click the `Log` tab to see what is going on.
 
-
-On the other side of the tunnel, on OpenWRT, select `Interfaces-Wireguard-peers` and a new peer:
+On the other side of the tunnel, on OpenWRT, select `Interfaces-Wireguard-peers` and add a new peer:
 * public key: the public key generated by the Windows Wireguard app
 * allowed IPs: 10.0.0.5/32 (the IP of the peer)
 * Routed allowed IPs: yes
 * Endpoint: `your pulic IP`
+
+To activate the tunnel click `activate` in the Window Wireguard app. You should see that bytes are sent AND received. Otherwise click the `Log` tab to see what is going on.
 
 
 
@@ -320,5 +319,5 @@ You can test this by generating traffic at UDP port 53 (used for DNS queries), t
 
 When everything is OK you should see with `tcpdump` traffic arriving at both the `wan` interface as well as at the `wireguard` interface.
 
-## firewall problems
+## Firewall problems
 If the wg traffic is arriving at the wan interface, but you cannot access your LAN or internet sites, then double check your firewall settings.

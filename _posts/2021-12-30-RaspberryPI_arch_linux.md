@@ -19,6 +19,9 @@ ssh-keygen -C "$(whoami)@$(uname -n)-$(date -I)" #accept default location for st
 ssh-copy-id -p <portno> username@remote-server.org #replace of course username en server name, and <portno> by SSH port used on server, if other than 22
 
 ```
+It is possible to use the same key to login in different remote machines. In that case you have to use the command `ssh-copy-id` multiple times to copy the key to the remote machines.
+
+
 
 ## Renew letsencrypt certificates
 ```bash

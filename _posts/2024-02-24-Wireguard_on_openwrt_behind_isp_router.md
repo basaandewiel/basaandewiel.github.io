@@ -202,7 +202,7 @@ config wireguard_wireguard
 I have done this on Linux Mint, based on Ubuntu 22.
 
 * on Linux
-  * install wireguard via `apt install wireguard`
+  * install wireguard via `apt install wireguard` or `pacman -S wireguard-tools` if on Arch linux
   * generate key pair
     * `wg genkey | tee private.key | wg pubkey > public.key`
     * Use the pubic key to configure the WireGuard peer on OpenWRT (see instructions above for adding IOS or Android peer)

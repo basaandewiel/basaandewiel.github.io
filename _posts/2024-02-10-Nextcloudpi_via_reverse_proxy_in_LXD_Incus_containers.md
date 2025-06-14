@@ -91,6 +91,7 @@ incus launch "nextcloudpi" ncp
 ## Configure nextcloudpi
 To be able to access nextcloudpi, add the domain you use for nextcloudpi, to the list of trusted domains
 ```
+incus exec ncp -- bash
 vim /var/wwww/nextcloud/config/config.php
 # I have choosen a not yet used unique number in the array of trusted domains
 ```

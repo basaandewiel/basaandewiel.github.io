@@ -57,7 +57,9 @@ The host (RPI) I was using was running Arch linux, so the 'lxd' command in subst
 ```
 # On the host RPI
 # launch container named proxy
-incus launch images:ubuntu/22.04 proxy
+# old version - incus launch images:ubuntu/22.04 proxy
+incus launch images:ubuntu/plucky/arm64 proxy
+
 
 # Add LXD proxy devices to redirect connections from the internet to ports 80 (HTTP) and 443 (HTTPS) on the server to the respective ports at the proxy container.
 incus  config device add proxy myport80 proxy listen=tcp:0.0.0.0:80 connect=tcp:127.0.0.1:80 proxy_protocol=true

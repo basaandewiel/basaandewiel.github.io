@@ -41,6 +41,13 @@ This was the working setup with a simple website, using port 80 (so no https):
 
 The problem with Nextcloud seemed to be that Nextcloud was using https. So I installed an SSL certificate of Letsencrypt in the proxy container. But is was still not working. This was caused by the fact that the proxy was now terminating the https connection, but was itself sending traffic in https to the nextcloud container. 
 And nextcloud had the setting of forcing https active. So the nextcloud container redirected all trafic to https. This resulted in the error in the browser of *too many redirections*. After turning the forcing of https to off in the nextcloud container everything was working.
+To turn forcing https off: 
+* incus exec ncp -- bash
+* #ncp-config
+  * select CONFIG
+  * select nc-httpsonly
+  * change 'yes' to 'no'
+  * save
 
 
 # Instructions

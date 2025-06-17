@@ -109,6 +109,25 @@ To be able to access nextcloudpi, add the domain you use for nextcloudpi, to the
 incus exec ncp -- bash
 vim /var/wwww/nextcloud/config/config.php
 # I have choosen a not yet used unique number in the array of trusted domains
+# parts of this config file look as:
+  'trusted_domains' =>
+  array (
+    0 => 'localhost',
+    7 => 'nextcloudpi',
+    5 => 'nextcloudpi.local',
+    8 => 'nextcloudpi.lan',
+    3 => 'ncp.aandewiel.eu',
+    11 => 'MYPUBLICIPADDRESS',
+    1 => 'PRIVATE IPADREES OF INCUS CONTAINER',
+    14 => 'ncp',
+    15 => 'ncp.MYDOMAIN',
+  ),
+  'trusted_proxies' =>
+  array (
+    1 => 'IPADDRESS OF PROXY INCUS CONTAINER',
+  ),
+
+
 ```
 In th same file also add the name of the proxy container 'proxy' to the list of trusted_proxies
 

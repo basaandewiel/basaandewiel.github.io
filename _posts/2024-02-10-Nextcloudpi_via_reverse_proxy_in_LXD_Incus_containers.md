@@ -94,6 +94,10 @@ vim /etc/nginx/nginx.conf
 # add following line in server block (without "#")
 # client_max_body_size 8m;
 
+# restart nginx
+systemctl reload nginx
+
+
 #Logout from the container.
 logout
 ```

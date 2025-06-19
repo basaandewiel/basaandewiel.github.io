@@ -88,6 +88,12 @@ incus exec proxy -- bash
 apt update
 #Install NGINX in the container.
 apt install -y nginx
+
+# set max body size; this is default 1M; otherwise file uploads to file servers behind the proxy (so also for nextcloud) are not possible
+vim /etc/nginx/nginx.conf
+# add following line in server block (without "#")
+# client_max_body_size 8m;
+
 #Logout from the container.
 logout
 ```

@@ -139,9 +139,49 @@ vim /var/wwww/nextcloud/config/config.php
 
 
 ```
-In th same file also add the name of the proxy container 'proxy' to the list of trusted_proxies
+In the same file also add the name of the proxy container 'proxy' to the list of trusted_proxies
 
-### Configure backup to backup your Nextcloud data
+
+## Direct Traffic to the Nextcloud container from the Reverse Proxy
+Start a shell in the proxy container.
+```
+incus exec proxy -- bash
+```
+Create the file nextcloud.yourdomain.com in /etc/nginx/sites-available/ for the configuration of your first website.
+NB: replace nextcloud.yourdomain.com with the external url via wich nextcloud should be made available. I use a free domain from afraid.org, and created a subsub domain for my nextcloud.
+
+
+File: nextcloud.yourdomain.com
+```
+server {
+        listen 80 proxy_protocol;
+        listen [::]:80 proxy_protocol;
+
+        server_name nextcloud.yourdomain.com;
+
+        location / {
+                include /etc/nginx/proxy_params;
+
+                proxy_pass http://proxy;
+        }
+
+        real_ip_header proxy_protocol;
+        set_real_ip_from 127.0.0.1;
+}
+```
+
+Enable the website.
+```
+sudo ln -s /etc/nginx/sites-available/nextcloud.yourdomain.com /etc/nginx/sites-enabled/
+Restart the NGINX reverse proxy. By restarting the service, NGINX reads and applies the new site instructions just added to /etc/nginx/sites-enabled.
+
+```
+sudo systemctl reload nginx
+#Exit the proxy container and return back to the host.
+logout
+```
+
+### Configure backup of your Nextcloud data
 * first create a directory that is accessible from both the backupserver (in my case my RPI5 which also runs all the incus containers) and from with the ncp linux container
   * on RPI5
 ```
@@ -197,51 +237,6 @@ can be done by installing app `Nextcloud` on Windows (only tested on windows).
 After this sync you can also edit, move, add and delete ncp file pertaining to your account.
 
 
-
-
-
-
-
-
-
-## Direct Traffic to the Nextcloud container from the Reverse Proxy
-Start a shell in the proxy container.
-```
-incus exec proxy -- bash
-```
-Create the file nextcloud.yourdomain.com in /etc/nginx/sites-available/ for the configuration of your first website.
-NB: replace nextcloud.yourdomain.com with the external url via wich nextcloud should be made available. I use a free domain from afraid.org, and created a subsub domain for my nextcloud.
-
-
-File: nextcloud.yourdomain.com
-```
-server {
-        listen 80 proxy_protocol;
-        listen [::]:80 proxy_protocol;
-
-        server_name nextcloud.yourdomain.com;
-
-        location / {
-                include /etc/nginx/proxy_params;
-
-                proxy_pass http://proxy;
-        }
-
-        real_ip_header proxy_protocol;
-        set_real_ip_from 127.0.0.1;
-}
-```
-
-Enable the website.
-```
-sudo ln -s /etc/nginx/sites-available/nextcloud.yourdomain.com /etc/nginx/sites-enabled/
-Restart the NGINX reverse proxy. By restarting the service, NGINX reads and applies the new site instructions just added to /etc/nginx/sites-enabled.
-
-```
-sudo systemctl reload nginx
-#Exit the proxy container and return back to the host.
-logout
-```
 
 ## Debugging
 For debugging you have several options, some are:

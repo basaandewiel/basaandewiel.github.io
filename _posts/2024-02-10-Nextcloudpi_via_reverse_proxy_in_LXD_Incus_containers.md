@@ -180,15 +180,21 @@ incus exec ncprestored -- bash
 In ncprestored:
 `ncp-config->backup->restore`
 * select /ncpBackup/<file>
-* via ncp-config ingesteld dat elke dag automatisch een backup gemaakt wordt
-    werkt niet
-    root password gereset, via passwd (dit zou mogelijk helpen)
-    cat /etc/cron.d/ncp-backup-auto - makes a backup every 7 days
-        explain crontab entry: 0  3  */7  *  *  root  /usr/local/bin/ncp-backup-auto
-    all my Nextcloud docs are synced with my laptop, so latest versions are redundant
+After this restore operation I only had to do one change:
+run `ncp-config` and 
+set `forced-https` to `off`.
 
-Heb proxy naar ncprestored omgeleid;
-hoefde in ncprestored alleen forced-https uit te zetten (via ncp-config), en daar waren alle users en data weer terug
+All ncp users and all data was restored.
+
+
+### Create cron job for regular automatic backups
+* run ncp-config and select 'backupsday' to '1' to create a backup every day
+This command creates file '/etc/cron.d/ncp-backup-auto' with following contents:
+`0  3  */7  *  *  root  /usr/local/bin/ncp-backup-auto`
+
+It is also good practice and handy to let sync 'your' files in ncp to for instance your (Windows) laptop. This
+can be done by installing app `Nextcloud` on Windows (only tested on windows).
+After this sync you can also edit, move, add and delete ncp file pertaining to your account.
 
 
 

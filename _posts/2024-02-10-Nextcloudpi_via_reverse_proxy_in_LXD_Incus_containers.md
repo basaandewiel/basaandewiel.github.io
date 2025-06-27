@@ -116,7 +116,7 @@ incus launch "nextcloudpi" ncp
 ## Configure nextcloudpi
 To be able to access nextcloudpi, add the domain you use for nextcloudpi, to the list of trusted domains.
 I think this was done via the `ncp-config` command. This command edit the contents of `/var/wwww/nextcloud/config/config.php`.
-When you manually edit this config, it will be overwritten at boot up of the ncp container.
+When you manually edit this config, it will be overwritten at boot up of the ncp container. This is done by script `/usr/local/bin/nextcloud-domain.sh`
 In a working config the trusted domain and trusted proxies have following contents
 
 ```
@@ -130,7 +130,6 @@ In a working config the trusted domain and trusted proxies have following conten
     11 => 'YOURPUBLIC IP ADDR',
     1 => 'IP ADDR OF NCP CONTAINER',
     14 => 'NAME OF NCP CONTAINER',
-    15 => 'ncp.YOURDOMAIN.EXT',
   ),
   'trusted_proxies' =>
   array (

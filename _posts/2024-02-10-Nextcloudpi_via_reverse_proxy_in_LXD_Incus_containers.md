@@ -149,6 +149,7 @@ incus config device add ncp ncpBackup disk source=/mnt/drivea/backups/ncp path=/
 incus exec ncp -- ls /ncpBACKUP
 # /ncpBackup: directory where this shared directory is available from within ncp linux container
 # /mnt/drivea/backups/ncp: directory where the shared directory is available from within the RPI5
+```
 
 nextcloudPI has several 'own' scripts in `/usr/local/bin`
 With `/usr/local/bin/ncp-backup` you can back up all contents of ncp to a file and optionally include data dir and compress it.
@@ -163,18 +164,23 @@ In ncp container:
 On RPI5:
 `incus exec proxy -- bash`
 
-In proxy container, let proxy point to incus container in which backup will be restored%%%:
+In proxy container, let proxy point to incus container in which backup will be restored:
+Change contents of  `/etc/nginx/sites-enabled/ncp.aandewiel.eu`
+replace `ncp` with `ncprestored` (name of incus container to which the backup will be restored)
+`systemctl reload nginx`
+
+On RPI5:
 ```
-vim /etc/nginx/sites-enabled/ncp.aandewiel.eu
-change ncp -> ncprestored (name of incus container)
-        systemctl reload nginx
-    incus stop ncp
-    incus start ncprestored
-    in ncprestored
-        incus exec ncprestored -- bash
-        ncp-config->backup->restore
-        select /ncpBackup/<file>
-via ncp-config ingesteld dat elke dag automatisch een backup gemaakt wordt
+incus stop ncp
+incus start ncprestored
+
+incus exec ncprestored -- bash
+```
+
+In ncprestored:
+`ncp-config->backup->restore`
+* select /ncpBackup/<file>
+* via ncp-config ingesteld dat elke dag automatisch een backup gemaakt wordt
     werkt niet
     root password gereset, via passwd (dit zou mogelijk helpen)
     cat /etc/cron.d/ncp-backup-auto - makes a backup every 7 days

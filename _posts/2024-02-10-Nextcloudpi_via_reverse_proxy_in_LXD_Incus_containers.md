@@ -141,6 +141,57 @@ vim /var/wwww/nextcloud/config/config.php
 ```
 In th same file also add the name of the proxy container 'proxy' to the list of trusted_proxies
 
+### Configure backup to backup your Nextcloud data
+* first create a directory that is accessible from both the backupserver (in my case my RPI5 which also runs all the incus containers) and from with the ncp linux container
+  * on RPI5
+```
+incus config device add ncp ncpBackup disk source=/mnt/drivea/backups/ncp path=/ncpBACKUP shift=true
+incus exec ncp -- ls /ncpBACKUP
+# /ncpBackup: directory where this shared directory is available from within ncp linux container
+# /mnt/drivea/backups/ncp: directory where the shared directory is available from within the RPI5
+
+nextcloudPI has several 'own' scripts in `/usr/local/bin`
+With `/usr/local/bin/ncp-backup` you can back up all contents of ncp to a file and optionally include data dir and compress it.
+I have tested this, by creating a backup from ncp, and importing this backup in fresh created other incus containter called 'ncprestored'
+
+On RPI5
+`incus exec proxy -- bash`
+
+In ncp container:
+`ncp-config->backup->include data and compress`
+
+On RPI5:
+`incus exec proxy -- bash`
+
+In proxy container, let proxy point to incus container in which backup will be restored%%%:
+```
+vim /etc/nginx/sites-enabled/ncp.aandewiel.eu
+change ncp -> ncprestored (name of incus container)
+        systemctl reload nginx
+    incus stop ncp
+    incus start ncprestored
+    in ncprestored
+        incus exec ncprestored -- bash
+        ncp-config->backup->restore
+        select /ncpBackup/<file>
+via ncp-config ingesteld dat elke dag automatisch een backup gemaakt wordt
+    werkt niet
+    root password gereset, via passwd (dit zou mogelijk helpen)
+    cat /etc/cron.d/ncp-backup-auto - makes a backup every 7 days
+        explain crontab entry: 0  3  */7  *  *  root  /usr/local/bin/ncp-backup-auto
+    all my Nextcloud docs are synced with my laptop, so latest versions are redundant
+
+Heb proxy naar ncprestored omgeleid;
+hoefde in ncprestored alleen forced-https uit te zetten (via ncp-config), en daar waren alle users en data weer terug
+
+
+
+
+
+
+
+
+
 ## Direct Traffic to the Nextcloud container from the Reverse Proxy
 Start a shell in the proxy container.
 ```

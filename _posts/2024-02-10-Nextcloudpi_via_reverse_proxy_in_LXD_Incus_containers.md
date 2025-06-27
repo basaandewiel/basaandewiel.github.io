@@ -187,8 +187,8 @@ logout
 ```
 incus config device add ncp ncpBackup disk source=/mnt/drivea/backups/ncp path=/ncpBACKUP shift=true
 incus exec ncp -- ls /ncpBACKUP
-# /ncpBackup: directory where this shared directory is available from within ncp linux container
-# /mnt/drivea/backups/ncp: directory where the shared directory is available from within the RPI5
+`# /ncpBackup: directory where this shared directory is available from within ncp linux container
+`# /mnt/drivea/backups/ncp: directory where the shared directory is available from within the RPI5
 ```
 
 nextcloudPI has several 'own' scripts in `/usr/local/bin`

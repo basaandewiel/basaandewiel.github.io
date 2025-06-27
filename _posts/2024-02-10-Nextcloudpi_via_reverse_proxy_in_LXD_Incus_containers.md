@@ -173,11 +173,9 @@ server {
 Enable the website.
 ```
 sudo ln -s /etc/nginx/sites-available/nextcloud.yourdomain.com /etc/nginx/sites-enabled/
-Restart the NGINX reverse proxy. By restarting the service, NGINX reads and applies the new site instructions just added to /etc/nginx/sites-enabled.
-
-```
+`#Restart the NGINX reverse proxy. By restarting the service, NGINX reads and applies the new site instructions just added to /etc/nginx/sites-enabled.
 sudo systemctl reload nginx
-#Exit the proxy container and return back to the host.
+`#Exit the proxy container and return back to the host.
 logout
 ```
 

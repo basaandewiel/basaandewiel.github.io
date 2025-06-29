@@ -10,7 +10,7 @@ Used sources
 
 
 # Goal
-Have Nexcloud working in a Linux containter on my Raspberry Pi, where Nextcloud is accessable from the interent.
+Have Nexcloud working in a Linux containter on my Raspberry Pi, where Nextcloud is accessable from the internet via https.
 
 
 # Introduction
@@ -19,14 +19,14 @@ So i ended up using Linux containers, widely known as LXD.
 
 I am using Arch Linux on my RPI, and on Arch linux LXD is replaced by **Incus**.
 
-For installing Incus, see one of my other posts, but in contrast to that post Incus is now used in bridge mode.
+For installing Incus, see one of my other posts, but in contrast to that post Incus is now used in **bridge mode**.
 
 # Networking
 I have been struggling with the networking part. I tried following:
 * set port forwarding on my router (Openwrt) for port 80 and port 443 to my RPI
 * on the RPI set port forwarding via the **nft** firewall (that was installed together with incus, and replaced **iptables**, for port 80 and 443 to the container running Nextcloud
 
-This did not work, probably because the router is doing NAT (translates public IP addresses to private IP addresses and vice versa. So I tried doing NAT via nft, but could net get it to work.
+This did not work, probably because the router is doing NAT (translates public IP addresses to private IP addresses and vice versa). So I tried doing NAT via nft, but could net get it to work.
 
 Finally I found out that I had to use a **reverse proxy** to direct external traffic to the container running Nextcloud.
 And the best part is that I found instruction to install the reverse proxy also in a Linux container.
@@ -55,8 +55,8 @@ incus exec ncp -- bash
   * change 'yes' to 'no'
   * save
 ```
-Now I can reach nextcloudpi via my own domain. However the browser indicats "not secure". However it indicates that the letsencrypt cerficate is valid.
-**still have to find the solution for this**
+Now I can reach nextcloudpi via my own domain. However the browser indicates "not secure". However it indicates that the letsencrypt cerficate is valid.
+Later on I did a clean reinstall of ncp, and installed letsencrypt via the command `certbot -nginx`, and now I have a good working https connection to ncp.
 
 # Instructions
 The host (RPI) I was using was running Arch linux, so the 'lxd' command in substituted by 'incus', but further there are no noticable (for me) differences between lxd and incus. For installing incus see my other post on this subject.
@@ -73,6 +73,7 @@ The host (RPI) I was using was running Arch linux, so the 'lxd' command in subst
 # On the host RPI
 # launch container named proxy
 # old version - incus launch images:ubuntu/22.04 proxy
+# new short term support version in next line
 incus launch images:ubuntu/plucky/arm64 proxy
 
 
@@ -91,12 +92,11 @@ apt install -y nginx
 
 # set max body size; this is default 1M; otherwise file uploads to file servers behind the proxy (so also for nextcloud) are not possible
 vim /etc/nginx/nginx.conf
-# add following line in server block (without "#")
-# client_max_body_size 8m;
+# add following line in server block
+`client_max_body_size 8m;`
 
 # restart nginx
 systemctl reload nginx
-
 
 #Logout from the container.
 logout
@@ -147,8 +147,7 @@ Start a shell in the proxy container.
 incus exec proxy -- bash
 ```
 Create the file nextcloud.yourdomain.com in /etc/nginx/sites-available/ for the configuration of your first website.
-NB: replace nextcloud.yourdomain.com with the external url via wich nextcloud should be made available. I use a free domain from afraid.org, and created a subsub domain for my nextcloud.
-
+NB: replace nextcloud.yourdomain.com with the external url via wich nextcloud should be made available. 
 
 File: nextcloud.yourdomain.com
 ```

@@ -168,6 +168,48 @@ server {
 }
 ```
 
+Now install letsencrypt certificates:
+`certbot --nginx`
+This also make changes to the file nextcloud.yourdomain.com.
+Mines looks now like this:
+```
+server {
+        server_name ncp.YOURDOMAIN.eu; #listen to these domains
+
+        location / {
+                include /etc/nginx/proxy_params;
+                proxy_pass http://ncp.incus; # IP address of webserver
+        }
+
+        real_ip_header proxy_protocol;
+        set_real_ip_from 127.0.0.1;
+
+    listen 443 ssl proxy_protocol; # managed by Certbot
+    listen [::]:443 ssl proxy_protocol ipv6only=on; # managed by Certbot
+    ssl_certificate /etc/letsencrypt/live/ncp.YOURDOMAIN.eu-0001/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/ncp.YOURDOMAIN.eu-0001/privkey.pem; # managed by Certbot
+    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+}
+
+server {
+# checks if the incoming request’s Host header exactly matches ncp.aandewiel.eu. If so, it issues a 301 (permanent) redirect to the same URL but with the HTTPS scheme, effectively forcing all HTTP requests to use HTTPS
+
+    if ($host = ncp.YOURDOMAIN.eu) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+# for all other urls drop the connection
+    listen 443 ssl;
+    server_name *.aandewiel.eu;
+
+    return 444; # NGINX specific code to drop the connection
+    ssl_certificate /etc/letsencrypt/live/ncp.YOURDOMAIN.eu/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/ncp.YOURDOMAIN.eu/privkey.pem; # managed by Certbot
+}
+```
+The last part of this file (for all other urls drop the connection) I added myself manually.
+
 Enable the website.
 ```
 sudo ln -s /etc/nginx/sites-available/nextcloud.yourdomain.com /etc/nginx/sites-enabled/

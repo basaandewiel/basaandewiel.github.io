@@ -233,7 +233,13 @@ It is also good practice and handy to let sync 'your' files in ncp to for instan
 can be done by installing app `Nextcloud` on Windows (only tested on windows).
 After this sync you can also edit, move, add and delete ncp file pertaining to your account.
 
-
+### Configure ncp to update automatically
+on RPI run `incus exec ncp -- bash`
+In ncp container run `# ncp-config`
+In ncp-config
+* enable nc-autoupdate-nc; updates nextcloud version
+* enable nc-autoupdate-ncp; updates OS in the container
+* enable nc-notify-updates; so you see what is going on
 
 ## Debugging
 For debugging you have several options, some are:

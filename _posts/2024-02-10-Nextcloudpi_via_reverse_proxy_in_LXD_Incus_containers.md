@@ -171,7 +171,7 @@ server {
 Now install letsencrypt certificates:
 `certbot --nginx`
 This also make changes to the file nextcloud.yourdomain.com.
-Mines looks now like this:
+Mines looks now like this: **NB: the line with 'proxy_protocl'  MUST be present; sometimes certbot removes this line, or modifies it**.
 ```
 server {
         server_name ncp.YOURDOMAIN.eu; #listen to these domains

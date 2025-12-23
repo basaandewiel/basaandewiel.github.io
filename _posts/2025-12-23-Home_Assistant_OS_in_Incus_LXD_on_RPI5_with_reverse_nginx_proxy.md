@@ -161,7 +161,9 @@ I can access HA from the RPI5 via the links text-only browser:
 Now HA-OS is working, we have to make it accessible from the internet so we can configure it further. But to be able to configure HA-OS I have to login via a browser into HA, but  my RPI5 is headless, and I cannot access HA from another computer.
 
 # Make HA-OS accessible via internet
-Method: install a graphical browser on RPI5, and display the GUI on my laptop running Arch Linux with Wayland (not X); I use a browser light on memory, to prevent memory exhaustion on RPI5. This is why I do not use firefox. Waypipe is a utility via which I can display the graphical browser running on my headless RPI5, on my laptop.
+## Get access to HA-OS via a browser
+ 
+Install a graphical browser on RPI5, and display the GUI on my laptop running Arch Linux with Wayland (not X); I use a browser light on memory, to prevent memory exhaustion on RPI5. This is why I do not use firefox. Waypipe is a utility via which I can display the graphical browser running on my headless RPI5, on my laptop.
 On RPI5
 ```
 pacman -S falkon
@@ -174,3 +176,64 @@ On laptop: `waypipe --no-gpu ssh <user>@<IP of RPI5> falkon`
 NB: the "-no-gpu:  switch is necessary
 
 In the falkon browser navigate to <IP of HA-OS VM)>:8123
+
+## Configure HA-OS to be used with existing Nginx reverse proxy
+I had already a running Nginx reverse proxy. This was running in an Incus container (not a VM) on the same RPI5. So I wanted to use this reverse proxy, and not the built in one in HA OS.
+
+I just created an nginx site file in the nginx proxy container:
+```
+incus exec proxy -- bash #start a bash shell in the incus container named 'proxy'.
+cd /etc/nginx/sites-available
+```
+create a file namen `ha.<yourdomain>` with following contents:
+```
+server {
+
+        server_name ha.<yourdomain>;
+
+        location / {
+
+        proxy_pass http://HA-OS.incus:8123;
+		proxy_set_header Host $host;
+        # the lines below are REALLY NECESSAY for websockets required by HA OS to work
+        proxy_set_header X-Real-IP $remote_addr;
+        	proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        	proxy_set_header X-Forwarded-Proto $scheme;
+        	proxy_set_header Upgrade $http_upgrade;
+        	proxy_set_header Connection "upgrade";
+        }
+
+        real_ip_header proxy_protocol;
+        set_real_ip_from 127.0.0.1;
+
+    listen [::]:443 ssl proxy_protocol; # managed by Certbot
+    listen 443 ssl proxy_protocol; # managed by Certbot
+    ssl_certificate /etc/letsencrypt/live/<YOUR PATH>/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/YOUR PATH/privkey.pem; # managed by Certbot
+    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+
+}
+server {
+    if ($host = ha.<yourdomain>) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+
+# for all urls:
+    return 404; # managed by Certbot
+```
+
+Now use the Falkon browser (see above) running on RPI5, to get access to HA OS. Log in into HA OS and
+* go to settings and activate `advanced mode`.
+* install add ons
+  * ssh
+  * file editor
+  
+Use file editor to edit `/root/config/configuration.yaml` and add folowing lines in http section:
+```
+use_x_forwarded_for: true
+trusted_proxies:
+  - <IP of Nginx reverse proxy server>
+
+```

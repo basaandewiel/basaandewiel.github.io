@@ -1,3 +1,8 @@
+---
+layout: post
+title: Home Assistant OS in Incus-Virtual Machine on RPI5
+---
+
 # Home Assistant OS in Incus-VM on RPI5
 
 - Home Assistant OS in Linux container (Incus/LXD) on RPI5 with reverse proxy (Nginx) in separate container

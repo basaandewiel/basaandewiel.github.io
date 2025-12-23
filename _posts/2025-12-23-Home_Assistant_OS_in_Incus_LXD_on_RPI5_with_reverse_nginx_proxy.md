@@ -2,10 +2,7 @@
 layout: post
 title: Home Assistant OS in Incus-Virtual Machine on RPI5
 ---
-
-# Home Assistant OS in Incus-VM on RPI5
-
-- Home Assistant OS in Linux container (Incus/LXD) on RPI5 with reverse proxy (Nginx) in separate container
+Home Assistant OS in Linux container (Incus/LXD) on RPI5 with reverse proxy (Nginx) in separate container
 - Goal
   - I wanted to have Home Assistant OS running, but didn't want to dedicate a full Raspberry Pi for this. So I searched whether is was possible to have HA running in a Virtual Machine on my main Raspberry PI.
 - used sources
@@ -14,7 +11,7 @@ title: Home Assistant OS in Incus-Virtual Machine on RPI5
   - Raspberry PI 5 with 4 GB RAM
   - Running Arch Linux
   - incus (linux container installed) with 4 containers running amongst them a Nginx reverse proxy
-- WORKING machanism
+- Working machanism
   - 
 
 <p>

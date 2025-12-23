@@ -2,20 +2,17 @@
 layout: post
 title: Home Assistant OS in Incus-Virtual Machine on RPI5
 ---
-# Home Assistant OS in Incus-Virtual Machine on RPI5
 Home Assistant OS in Linux container (Incus/LXD) on RPI5 with reverse proxy (Nginx) in separate container
 ## Goal
-  - I wanted to have Home Assistant OS running, but didn't want to dedicate a full Raspberry Pi for this. So I searched whether is was possible to have HA running in a Virtual Machine on my main Raspberry PI.
+I wanted to have Home Assistant OS running, but didn't want to dedicate a full Raspberry Pi for this. So I searched whether is was possible to have HA running in a Virtual Machine on my main Raspberry PI.
 ## Used sources
-  - <https://discussion.scottibyte.com/t/home-assistant-os-in-incus-101/648>
+<https://discussion.scottibyte.com/t/home-assistant-os-in-incus-101/648>
 ## Environment
   - Raspberry PI 5 with 4 GB RAM
   - Running Arch Linux
   - incus (linux container installed) with 4 containers running amongst them a Nginx reverse proxy
-# Working machanism
-<p>
+## Working machanism
       In order to run a Virtual Machine, an <span style="font-weight: bold;">emulator (qemu</span>) and <span style="font-weight: bold;">Virtualizing extensions (KVM </span>aka libvirt) are required.
-    </p>
 
   - incus uses qemu for VM's
   - incus generates qemu config file from 
@@ -64,6 +61,7 @@ incus config set HA-OS limits.memory 2GiB
 incus start HA-OS
 ```
 
+## Error: Virtual machine not supported
 Of course starting HA-OS was not working the first time; I got error "Virtual machine not supported". So now first test whether a very basic VM is working:
 `incus launch images:debian/12 test-vm --vm -c security.secureboot=false`
 This gave the same error "ERROR virtual machine not supported".
@@ -101,6 +99,8 @@ Environment=INCUS_EDK2_PATH=/usr/share/edk2/aarch64/
 In the upper part (override part) of the file
 Now this dir contains the needed .fd files
 `systemctl restart incus`
+
+## Error: virtio-gpu-pci is not a valid device model name
 
 Now I get following error: `virtio-gpu-pci is not a valid device model name`.
 Launching our test VM `incus launch images:debian/12 test-vm --vm -c security.secureboot=false` gives an error.
@@ -144,6 +144,7 @@ This still **not** solved the problem.
 `pacman -S qemu-hw-display-virtio-gpu-pci`
 **This is the command that did the trick, and solved this problem**
 
+## The HA-OS virtual machine starts
 Now check our test-vm:
 `incus launch images:debian/12 test-vm --vm -c security.secureboot=false`
 This succeeds!!
@@ -169,7 +170,7 @@ pacman -S waypipe
 On laptop: `pacman -S waypipe`
 
 Now start falkon on RPI5, from laptop with display on laptop.
-On laptop: `waypipe --no-gpu ssh baswi@192.168.1.15 falkon`
+On laptop: `waypipe --no-gpu ssh <user>@<IP of RPI5> falkon`
 NB: the "-no-gpu:  switch is necessary
 
 In the falkon browser navigate to <IP of HA-OS VM)>:8123

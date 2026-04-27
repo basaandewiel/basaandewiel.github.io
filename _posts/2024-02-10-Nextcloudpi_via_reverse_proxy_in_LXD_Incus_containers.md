@@ -288,3 +288,37 @@ For debugging you have several options, some are:
 * to check whether the traffic arrives at the RPI from the router you can use for instance 'tcpdump'
 * check the status of services, for instance of nginx via `systemctl status nginx` 
 
+## Letsencrypt certifcate for multiple sites
+Hier is een korte handleiding die je kunt opslaan (bijvoorbeeld in een .txt bestand of een beheernotitie) voor de volgende keer dat je een domein wilt toevoegen of SSL-problemen moet debuggen in je huidige setup.
+SSL Beheer Notitie (Incus Proxy Setup)
+1. Een nieuw domein toevoegen aan het certificaat
+Als je een nieuw domein (bijv. nieuw.aandewiel.eu) toevoegt, voeg je dit toe aan je centrale certificaat (gtd.aandewiel.eu) met het --expand commando:
+bash
+sudo certbot --expand -d gtd.aandewiel.eu,ha.aandewiel.eu,kimai.aandewiel.eu,ncp.aandewiel.eu,tessie.aandewiel.eu,nieuw.aandewiel.eu --webroot -w /var/www/html
+Wees voorzichtig met code.
+Na succes: herlaad Nginx met sudo systemctl reload nginx.
+2. Nginx Configuratie (Standaard blok)
+Zorg dat elk domein in /etc/nginx/sites-enabled/ de volgende regels heeft:
+SSL Paden:
+nginx
+ssl_certificate /etc/letsencrypt/live/gtd.aandewiel.eu/fullchain.pem;
+ssl_certificate_key /etc/letsencrypt/live/gtd.aandewiel.eu/privkey.pem;
+Wees voorzichtig met code.
+Validatie blok (voor poort 80 & 443):
+nginx
+location /.well-known/acme-challenge/ {
+    root /var/www/html;
+}
+
+3. Debug Checklist bij vernieuwingsfouten
+Mocht de vernieuwing in de toekomst weer falen, check dan deze "ketting":
+Modem/Router: Staat poort 80 nog steeds geforward naar de RPI5?
+Incus Host: Controleer of de proxy-device nog goed staat:
+incus config device show proxy (moet proxy_protocol=false zijn voor poort 80).
+Lokaal testen: Werkt curl -I http://localhost:80 op de RPI5 host?
+Dry-run: Gebruik sudo certbot renew --dry-run op de proxy-container.
+4. Handige Commando's
+Certificaten inzien: sudo certbot certificates
+Certificaat technisch checken: openssl x509 -in /etc/letsencrypt/live/gtd.aandewiel.eu/fullchain.pem -text -noout | grep DNS
+Nginx test: sudo nginx -t
+
